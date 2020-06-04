@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--NotificationButton-->
+    <declare-styleable name="NotificationButton">
+        <attr name="circleBgColor" format="color" />
+        <attr name="textColor" format="color" />
+        <attr name="circleSize" format="dimension" />
+    </declare-styleable>
+</resources>

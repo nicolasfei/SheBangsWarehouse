@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="72dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginBottom="10dp"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <com.shebangs.warehouse.component.NotificationButton
+        android:id="@+id/notificationButton"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="@mipmap/ic_launcher"
+        app:circleBgColor="@android:color/holo_red_light"
+        app:circleSize="8dp" />
+
+    <TextView
+        android:id="@+id/navigationName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="4dp"
+        android:gravity="center"
+        android:singleLine="true"
+        android:text="每日汇款登记"
+        android:textColor="@android:color/black"
+        android:textSize="14sp"
+        tools:ignore="MissingPrefix" />
+</androidx.appcompat.widget.LinearLayoutCompat>

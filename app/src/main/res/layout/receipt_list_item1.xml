@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/w"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/w0"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.8"
+            android:gravity="start|center"
+            android:singleLine="true"
+            android:text="供应商：9079"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/w1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="start|center"
+            android:singleLine="true"
+            android:text="分店号：JM12"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/w2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.8"
+            android:gravity="start|center"
+            android:singleLine="true"
+            android:text="数量：100"
+            android:textColor="@android:color/black" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider"
+        android:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@+id/w" />
+
+    <LinearLayout
+        android:id="@+id/g"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider">
+
+        <TextView
+            android:id="@+id/g0"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.8"
+            android:gravity="start|center"
+            android:singleLine="true"
+            android:text="旧货号：785" />
+
+        <TextView
+            android:id="@+id/g1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="start|center"
+            android:singleLine="true"
+            android:text="新货号：912232B" />
+
+        <TextView
+            android:id="@+id/g2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.8"
+            android:drawableEnd="@drawable/ic_sj_down"
+            android:gravity="start|center"
+            android:singleLine="true"
+            android:text="类别：牛仔裤" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/divider1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider"
+        android:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@+id/g" />
+
+    <LinearLayout
+        android:id="@+id/b"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider1">
+
+        <TextView
+            android:id="@+id/b0"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.8"
+            android:gravity="start|center"
+            android:singleLine="true"
+            android:text="下单日：12-23" />
+
+        <TextView
+            android:id="@+id/b1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="start|center"
+            android:singleLine="true"
+            android:text="截至日：01-25" />
+
+        <TextView
+            android:id="@+id/b2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.8"
+            android:gravity="start|center"
+            android:singleLine="true"
+            android:text="尺码：M" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/divider2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider"
+        android:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@+id/b" />
+
+    <LinearLayout
+        android:id="@+id/h"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider2">
+
+        <TextView
+            android:id="@+id/h0"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.8"
+            android:gravity="start|center"
+            android:singleLine="true"
+            android:text="片&#12288;区：连锁事业部" />
+
+        <TextView
+            android:id="@+id/h1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="start|center"
+            android:singleLine="true"
+            android:text="库&#12288;房：JM" />
+
+        <TextView
+            android:id="@+id/h2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.8"
+            android:gravity="start|center"
+            android:singleLine="true"
+            android:text="属性：统下单" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/divider3"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider"
+        android:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@+id/h" />
+
+    <TextView
+        android:id="@+id/remark"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_weight="1"
+        android:gravity="start|center"
+        android:text="备注：销售明细账里目前有客户备注跟客服备注，货品备注列还没有， 这边把这个反馈提交。"
+        android:textColor="@android:color/holo_red_light"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="@dimen/list_height_percent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider3" />
+</androidx.constraintlayout.widget.ConstraintLayout>

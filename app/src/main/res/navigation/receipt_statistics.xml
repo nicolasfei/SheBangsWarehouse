@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/receipt_statistics"
+    app:startDestination="@+id/statistics_received">
+
+    <fragment
+        android:id="@+id/statistics_received"
+        android:name="com.shebangs.warehouse.ui.receipt.StatisticsReceivedFragment"
+        android:label="@string/warehouse_received"
+        tools:layout="@layout/fragment_statistics_received" />
+
+    <fragment
+        android:id="@+id/statistics_unreceived"
+        android:name="com.shebangs.warehouse.ui.receipt.StatisticsUnreceivedFragment"
+        android:label="@string/warehouse_unreceived"
+        tools:layout="@layout/fragment_statistics_unreceived" />
+</navigation>

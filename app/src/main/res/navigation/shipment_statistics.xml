@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/shipment_statistics"
+    app:startDestination="@+id/statistics_send">
+
+    <fragment
+        android:id="@+id/statistics_send"
+        android:name="com.shebangs.warehouse.ui.shipment.StatisticsShipmentFragment"
+        android:label="@string/warehouse_send"
+        tools:layout="@layout/fragment_statistics_received" />
+
+    <fragment
+        android:id="@+id/statistics_unsend"
+        android:name="com.shebangs.warehouse.ui.shipment.StatisticsUnShipmentFragment"
+        android:label="@string/warehouse_unsend"
+        tools:layout="@layout/fragment_statistics_unreceived" />
+
+</navigation>

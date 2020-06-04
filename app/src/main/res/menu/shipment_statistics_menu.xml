@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/statistics_send"
+        android:icon="@drawable/ic_shipment"
+        android:title="@string/warehouse_send" />
+
+    <item
+        android:id="@+id/statistics_unsend"
+        android:icon="@drawable/ic_unshipment"
+        android:title="@string/warehouse_unsend" />
+</menu>

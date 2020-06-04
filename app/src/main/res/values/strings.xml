@@ -1,0 +1,122 @@
+<resources>
+    <string name="app_name">库房管理</string>
+    <string name="title_home">首页</string>
+    <string name="title_set">设置</string>
+
+    <!--activity-->
+    <string name="activity_login">登陆</string>
+    <string name="activity_receipt">库房收货</string>
+    <string name="activity_receipt_statistics">库房收货统计</string>
+    <string name="activity_shipment">库房发货</string>
+    <string name="activity_shipment_statistics">库房发货统计</string>
+
+    <!--登陆-->
+    <string name="login_name">用户名</string>
+    <string name="login_password">密码</string>
+    <string name="action_sign_in">登陆</string>
+    <string name="action_sign_in_short">登陆</string>
+    <string name="welcome">"欢迎:"</string>
+    <string name="invalid_username">用户名或密码有误</string>
+    <string name="invalid_password">密码须大于5位</string>
+    <string name="login">"登陆"</string>
+    <string name="login_ing">"登陆中..."</string>
+    <string name="login_failed">"登陆失败"</string>
+    <string name="get_warehouse_failed">获取库房信息失败</string>
+    <string name="get_staffs_failed">获取库房人员信息失败</string>
+    <string name="login_onduty_staff">选择在岗人员</string>
+    <string name="getting_staff">获取工作人员信息中...</string>
+    <string name="getting_warehouse">获取库房信息中...</string>
+
+    <!--导航-->
+    <string name="nav_warehouse_manager">库房管理</string>
+    <string name="nav_warehousing">库房收货</string>
+    <string name="nav_exwarehouse">库房发货</string>
+    <string name="nav_warehousing_statistics">库房收货统计</string>
+    <string name="nav_exwarehouse_statistics">库房发货统计</string>
+    <string name="nav_dev_manager">设备管理</string>
+    <string name="nav_set_scan">扫描设置</string>
+
+    <!--入库货物信息-->
+    <string name="supplier_id">供应商编号</string>
+    <string name="goods_code">&#12288;货物条码&#12288;</string>
+    <string name="area">&#12288;&#12288;片区&#12288;</string>
+    <string name="warehouse">&#12288;&#12288;库房&#12288;</string>
+    <string name="order_class">&#12288;下单属性</string>
+    <string name="goods_class">&#12288;&#12288;类别&#12288;</string>
+    <string name="old_goods_code">&#12288;&#8194;旧货号&#8194;</string>
+    <string name="warehouse_remark">&#12288;&#12288;备注&#12288;</string>
+    <string name="branch_code">&#12288;分店编号&#12288;</string>
+    <string name="order_date">&#12288;下单日期&#12288;</string>
+    <string name="invalid_date">交货截至日期</string>
+    <string name="new_goods_code">&#12288;&#8194;&#8194;新货号&#8194;&#8194;</string>
+    <string name="num">&#8194;&#12288;&#8194;数量&#8194;&#12288;&#8194;</string>
+    <string name="size">&#8194;&#12288;&#8194;尺码&#8194;&#12288;&#8194;</string>
+    <string name="area_prxd">连锁事业部</string>
+
+    <string name="supplier_id1">供应商</string>
+    <string name="goods_code1">货物条码</string>
+    <string name="area1">片区</string>
+    <string name="warehouse1">库房</string>
+    <string name="order_class1">属性</string>
+    <string name="goods_class1">类别</string>
+    <string name="old_goods_code1">旧货号</string>
+    <string name="warehouse_remark1">备注</string>
+    <string name="branch_code1">分店号</string>
+    <string name="order_date1">下单日</string>
+    <string name="invalid_date1">截至日</string>
+    <string name="new_goods_code1">新货号</string>
+    <string name="num1">数量</string>
+    <string name="size1">尺码</string>
+    <string name="area_prxd1">连锁事业部</string>
+
+    <!--权限请求-->
+    <string name="request_power">权限请求!</string>
+    <string name="request_power_WES">App需要获取所有的权限,请允许！</string>
+    <!--app异常崩溃-->
+    <string name="app_crash">App异常崩溃</string>
+    <string name="app_crash_msg">很抱歉，App异常崩溃了!</string>
+    <string name="app_crash_reset">重启App</string>
+    <string name="app_crash_close">退出App</string>
+    <string name="app_create_file_failed">创建数据文件失败</string>
+    <string name="app_create_file_failed_msg">创建App数据文件失败,App退出运行!</string>
+
+    <!--other-->
+    <string name="contentDescription">123</string>
+    <string name="cancel">取消</string>
+    <string name="yes">确定</string>
+    <string name="link_server_failed">连接服务器失败</string>
+    <string name="data_query">数据查询中...</string>
+    <string name="on_duty_staff_choice">在岗职员选择</string>
+    <string name="warehouse_choice">库房选择</string>
+    <string name="branch_choice">分店选择</string>
+    <string name="submit">提交</string>
+    <string name="total">合计</string>
+    <string name="warehouse_received">已入库</string>
+    <string name="warehouse_unreceived">未入库</string>
+    <string name="warehouse_send">已出库</string>
+    <string name="warehouse_unsend">未出库</string>
+    <string name="warehouse_name">库房名</string>
+    <string name="warehouse_staff_name">库员名</string>
+    <string name="input_password">请输入密码</string>
+    <string name="code_format_error">条码必须大于11位,且只能由字母和数字组成</string>
+    <string name="colon_zh">：</string>
+
+    <!--date time picker-->
+    <string name="title">请选择时间</string>
+    <string name="confirm">确定</string>
+    <string name="year">年</string>
+    <string name="month">月</string>
+    <string name="day">日</string>
+    <string name="hour">时</string>
+    <string name="minute">分</string>
+    <string name="warehouse_business_time">入库时间</string>
+    <string name="exwarehouse_business_time">出库时间</string>
+    <string name="remark">备注:</string>
+    <string name="money">￥</string>
+    <string name="delete">删除</string>
+    <string name="submit_success">提交成功</string>
+    <string name="scaned">已扫描</string>
+    <string name="unScan">未扫描</string>
+    <string name="no_choice_branch">请先选择分店</string>
+    <string name="branch_not_delivery_required">分店无需发货</string>
+</resources>
