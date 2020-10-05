@@ -16,6 +16,24 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="TextViewStyle">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:gravity">start|center</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textSize">@dimen/text_size</item>
+        <item name="android:paddingStart">@dimen/text_view_margin</item>
+    </style>
+
+    <style name="TextViewStyleItem">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">@dimen/text_view_item_height</item>
+        <item name="android:gravity">start|center</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:paddingStart">0dp</item>
+    </style>
+
     <!--date time picker-->
     <style name="date_picker_dialog" parent="android:style/Theme.Dialog">
         <item name="android:windowFrame">@null</item>

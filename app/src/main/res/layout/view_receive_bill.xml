@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:gravity="center"
+        android:text="@string/prxd_receive_bill"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:id="@+id/dcode"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:src="@mipmap/ico_big"
+        android:textColor="@android:color/black" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="收货日期：2020-09-18"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/supplierID"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="供应商编号：9001"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/warehouse"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="库房编号：M365"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/staff"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="收货账号：龚静"
+            android:textSize="10sp" />
+    </LinearLayout>
+
+    <GridView
+        android:id="@+id/branchList"
+        android:layout_width="match_parent"
+        android:layout_height="240dp"
+        android:horizontalSpacing="5dp"
+        android:numColumns="4"
+        android:padding="10dp"
+        android:verticalSpacing="5dp" />
+
+    <TextView
+        android:id="@+id/total"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:gravity="center|end"
+        android:paddingEnd="40dp"
+        android:text="此单合计分店个数:20个"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/remark"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:gravity="start|center"
+        android:singleLine="false"
+        android:text="尊敬的供货商，请妥善保管此小票，请认真核对此小票的送货分店此小票只作为核查分店是否入库依据，不作为数量金额入账依据"
+        android:textColor="@android:color/black" />
+</LinearLayout>

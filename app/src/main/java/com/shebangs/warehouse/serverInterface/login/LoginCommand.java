@@ -14,7 +14,9 @@ public class LoginCommand extends Command {
     @Override
     protected void buildDutyChain() {
         LoginInterface warehouseLogin = new WarehouseLogin();
-        warehouseLogin.setNextHandler(null);
+        LoginInterface warehouseLogout = new WarehouseLogout();
+        warehouseLogin.setNextHandler(warehouseLogout);
+        warehouseLogout.setNextHandler(null);
         super.firstNode = warehouseLogin;
     }
 

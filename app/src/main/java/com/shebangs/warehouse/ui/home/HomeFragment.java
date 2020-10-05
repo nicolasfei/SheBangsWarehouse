@@ -77,13 +77,20 @@ public class HomeFragment extends Fragment implements ModuleNavigationAdapter.On
         });
     }
 
+    //上一次点击时间
+    private static long lastClickTime = 0;
+    private static final int INTERVAL_TIME = 1000;
+
     @Override
     public void onItemClick(int position) {
-        ModuleNavigation navigation = homeViewModel.getModuleNavigation(position);
-        if (navigation.isTitle || navigation.navActivity == null) {
-            return;
+        if (System.currentTimeMillis() - lastClickTime > INTERVAL_TIME) {
+            ModuleNavigation navigation = homeViewModel.getModuleNavigation(position);
+            if (navigation.isTitle || navigation.navActivity == null) {
+                return;
+            }
+            Intent intent = new Intent(context, navigation.navActivity);
+            startActivity(intent);
+            lastClickTime = System.currentTimeMillis();
         }
-        Intent intent = new Intent(context, navigation.navActivity);
-        startActivity(intent);
     }
 }

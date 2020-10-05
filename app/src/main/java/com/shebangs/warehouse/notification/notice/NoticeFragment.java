@@ -2,7 +2,6 @@ package com.shebangs.warehouse.notification.notice;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +13,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.nicolas.advertnoticelibrary.AdvertViewHolderCreator;
+import com.nicolas.advertnoticelibrary.NoticeData;
 import com.shebangs.warehouse.R;
 import com.shebangs.warehouse.common.OperateResult;
 import com.youth.banner.Banner;
@@ -22,8 +23,6 @@ import com.youth.banner.indicator.CircleIndicator;
 import java.util.List;
 
 public class NoticeFragment extends Fragment {
-
-    private static final String TAG = "NoticeFragment";
 
     private NoticeViewModel noticeViewModel;
     private AdvertViewHolderCreator adapter;
@@ -69,7 +68,6 @@ public class NoticeFragment extends Fragment {
                     for (NoticeData notice : notices) {
                         noticeShow.append(notice.getData());
                     }
-                    Log.d(TAG, "onChanged: " + noticeShow.toString());
                     noticeTextView.setText(noticeShow.toString());
                     noticeTextView.setSelected(true);
                 }
@@ -77,5 +75,11 @@ public class NoticeFragment extends Fragment {
         });
         //本地数据初始化
         noticeViewModel.advertNoticeLocalInit();
+    }
+
+    @Override
+    public void onDestroyView() {
+        noticeViewModel.resetAdvertNotice();
+        super.onDestroyView();
     }
 }

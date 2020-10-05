@@ -102,7 +102,7 @@ public class FirstActivity extends AppCompatActivity {
     }
 
     private void jumpToLoginActivity() {
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
         this.finish();

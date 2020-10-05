@@ -1,15 +1,23 @@
 package com.shebangs.warehouse.notification.notice;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.nicolas.advertnoticelibrary.AdvertData;
+import com.nicolas.advertnoticelibrary.DataLocalManagement;
+import com.nicolas.advertnoticelibrary.NoticeData;
+import com.shebangs.warehouse.R;
+import com.shebangs.warehouse.app.WarehouseApp;
 import com.shebangs.warehouse.common.OperateInUserView;
 import com.shebangs.warehouse.common.OperateResult;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class NoticeViewModel extends ViewModel {
-    private static final String TAG = "NoticeViewModel";
     private MutableLiveData<OperateResult> noticeGetResult;
     private MutableLiveData<OperateResult> advertGetResult;
     private MutableLiveData<OperateResult> initResult;
@@ -78,7 +86,15 @@ public class NoticeViewModel extends ViewModel {
      * 广告，通知本地初始化
      */
     public void advertNoticeLocalInit() {
-        DataLocalManagement.getInstance().initLocalData();
+        List<String> notices = new ArrayList<>();
+        notices.add("1:广告位招租1");
+        notices.add("2:广告位招租2");
+        notices.add("3:广告位招租3");
+        List<Bitmap> bitmaps = new ArrayList<>();
+        bitmaps.add(BitmapFactory.decodeResource(WarehouseApp.getInstance().getResources(), R.mipmap.advert1));
+        bitmaps.add(BitmapFactory.decodeResource(WarehouseApp.getInstance().getResources(), R.mipmap.advert2));
+        bitmaps.add(BitmapFactory.decodeResource(WarehouseApp.getInstance().getResources(), R.mipmap.advert3));
+        DataLocalManagement.getInstance().initLocalData(bitmaps, notices);
     }
 
     /**
@@ -93,5 +109,12 @@ public class NoticeViewModel extends ViewModel {
      */
     public void queryNotice() {
 
+    }
+
+    /**
+     * 重置广告
+     */
+    public void resetAdvertNotice() {
+        DataLocalManagement.getInstance().resetInitStatus();
     }
 }

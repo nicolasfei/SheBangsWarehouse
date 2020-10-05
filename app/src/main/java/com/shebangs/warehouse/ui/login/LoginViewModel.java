@@ -6,31 +6,31 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.nicolas.toollibrary.HttpHandler;
 import com.shebangs.warehouse.R;
+import com.shebangs.warehouse.app.WarehouseApp;
+import com.shebangs.warehouse.common.OperateError;
+import com.shebangs.warehouse.common.OperateInUserView;
+import com.shebangs.warehouse.common.OperateResult;
 import com.shebangs.warehouse.serverInterface.CommandResponse;
 import com.shebangs.warehouse.serverInterface.CommandTypeEnum;
 import com.shebangs.warehouse.serverInterface.CommandVo;
-import com.shebangs.warehouse.serverInterface.HttpHandler;
 import com.shebangs.warehouse.serverInterface.Invoker;
 import com.shebangs.warehouse.serverInterface.login.LoginInterface;
+import com.shebangs.warehouse.serverInterface.manager.ManagerInterface;
 import com.shebangs.warehouse.warehouse.WarehouseKeeper;
-import com.shebangs.warehouse.warehouse.WarehouseStaff;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class LoginViewModel extends ViewModel {
-
-    private MutableLiveData<LoginFormState> loginFormState;
-    private MutableLiveData<LoginResult> loginResult;
-    private MutableLiveData<LoginResult> warehouseStaffListResult;
-    private MutableLiveData<LoginResult> warehouseInformationResult;
+    private MutableLiveData<OperateResult> loginFormState;
+    private MutableLiveData<OperateResult> loginResult;
+    private MutableLiveData<OperateResult> warehouseStaffListResult;
+    private MutableLiveData<OperateResult> warehouseInformationResult;
 
 
     public LoginViewModel() {
@@ -40,19 +40,19 @@ public class LoginViewModel extends ViewModel {
         warehouseInformationResult = new MutableLiveData<>();
     }
 
-    public LiveData<LoginFormState> getLoginFormState() {
+    public LiveData<OperateResult> getLoginFormState() {
         return loginFormState;
     }
 
-    public LiveData<LoginResult> getLoginResult() {
+    public LiveData<OperateResult> getLoginResult() {
         return loginResult;
     }
 
-    public LiveData<LoginResult> getWarehouseStaffListResult() {
+    public LiveData<OperateResult> getWarehouseStaffListResult() {
         return warehouseStaffListResult;
     }
 
-    public LiveData<LoginResult> getWarehouseInformationResult() {
+    public LiveData<OperateResult> getWarehouseInformationResult() {
         return warehouseInformationResult;
     }
 
@@ -67,10 +67,10 @@ public class LoginViewModel extends ViewModel {
         vo.typeEnum = CommandTypeEnum.COMMAND_WAREHOUSE_LOGIN;
         vo.url = LoginInterface.WarehouseLogin;
         vo.contentType = HttpHandler.ContentType_APP;
-        vo.requestMode = HttpHandler.RequestMode_GET;
+        vo.requestMode = HttpHandler.RequestMode_POST;
         Map<String, String> parameters = new HashMap<>();
-        parameters.put("loginName", username);
-        parameters.put("loginPwd", password);
+        parameters.put("userName", username);
+        parameters.put("password", password);
         vo.parameters = parameters;
         Invoker.getInstance().setOnEchoResultCallback(this.callback);
         Invoker.getInstance().exec(vo);
@@ -78,35 +78,17 @@ public class LoginViewModel extends ViewModel {
 
     /**
      * 获取库房信息
-     *
-     * @param userKey userKey
      */
-    public void queryWarehouseInformation(String userKey) {
+    public void queryWarehouseInformation() {
         CommandVo vo = new CommandVo();
-        vo.typeEnum = CommandTypeEnum.COMMAND_WAREHOUSE_LOGIN;
-        vo.url = LoginInterface.GetWarehouseInformation;
+        vo.typeEnum = CommandTypeEnum.COMMAND_WAREHOUSE_MANAGER;
+        vo.url = ManagerInterface.GetWarehouseInformation;
         vo.contentType = HttpHandler.ContentType_APP;
-        vo.requestMode = HttpHandler.RequestMode_GET;
+        vo.requestMode = HttpHandler.RequestMode_POST;
         Map<String, String> parameters = new HashMap<>();
-        parameters.put("userkey", userKey);
-        vo.parameters = parameters;
-        Invoker.getInstance().setOnEchoResultCallback(this.callback);
-        Invoker.getInstance().exec(vo);
-    }
-
-    /**
-     * 获取库员集合
-     *
-     * @param userKey userKey
-     */
-    public void queryWarehouseKeeperList(String userKey) {
-        CommandVo vo = new CommandVo();
-        vo.typeEnum = CommandTypeEnum.COMMAND_WAREHOUSE_LOGIN;
-        vo.url = LoginInterface.GetWarehouseKeeperList;
-        vo.contentType = HttpHandler.ContentType_APP;
-        vo.requestMode = HttpHandler.RequestMode_GET;
-        Map<String, String> parameters = new HashMap<>();
-        parameters.put("userkey", userKey);
+        parameters.put("currentPage", "1");
+        parameters.put("pageSize", "10000");
+        parameters.put("pageCount", "0");
         vo.parameters = parameters;
         Invoker.getInstance().setOnEchoResultCallback(this.callback);
         Invoker.getInstance().exec(vo);
@@ -119,48 +101,29 @@ public class LoginViewModel extends ViewModel {
             switch (result.url) {
                 case LoginInterface.WarehouseLogin:        //库房登陆
                     if (!result.success) {
-                        loginResult.setValue(new LoginResult(R.string.login_failed));
+                        loginResult.setValue(new OperateResult(new OperateError(result.code, result.msg, null)));
                     } else {
                         try {
-                            JSONObject jsonObject = new JSONObject(result.data);
-                            WarehouseKeeper.getInstance().setUserId(jsonObject.getString("userid"));
-                            WarehouseKeeper.getInstance().setUserKey(jsonObject.getString("userkey"));
-                            loginResult.setValue(new LoginResult(new LoggedInUserView("")));
+                            JSONObject token = new JSONObject(result.token);
+                            WarehouseKeeper.getInstance().setToken(token.getString("token"));
+                            WarehouseKeeper.getInstance().setOnDutyStaff(result.data);
+                            loginResult.setValue(new OperateResult(new OperateInUserView(null)));
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            loginResult.setValue(new LoginResult(R.string.login_failed));
+                            loginResult.setValue(new OperateResult(new OperateError(-1, WarehouseApp.getInstance().getString(R.string.errorData), null)));
                         }
                     }
                     break;
-                case LoginInterface.GetWarehouseKeeperList:            //获取库员信息集合
+                case ManagerInterface.GetWarehouseInformation:            //获取库房信息
                     if (!result.success) {
-                        warehouseStaffListResult.setValue(new LoginResult(R.string.get_staffs_failed));
-                    } else {
-                        List<WarehouseStaff> staffs = new ArrayList<>();
-                        try {
-                            JSONArray array = new JSONArray(result.data);
-                            for (int i = 0; i < array.length(); i++) {
-                                WarehouseStaff staff = new WarehouseStaff(array.getString(i));
-                                staffs.add(staff);
-                            }
-                            WarehouseKeeper.getInstance().setStaffs(staffs);
-                            warehouseStaffListResult.setValue(new LoginResult(new LoggedInUserView("")));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            warehouseStaffListResult.setValue(new LoginResult(R.string.get_staffs_failed));
-                        }
-                    }
-                    break;
-                case LoginInterface.GetWarehouseInformation:            //获取库房信息
-                    if (!result.success) {
-                        warehouseInformationResult.setValue(new LoginResult(R.string.get_warehouse_failed));
+                        warehouseInformationResult.setValue(new OperateResult(new OperateError(result.code, result.msg, null)));
                     } else {
                         try {
-                            WarehouseKeeper.getInstance().setInformation(result.data);
-                            warehouseInformationResult.setValue(new LoginResult(new LoggedInUserView("")));
+                            WarehouseKeeper.getInstance().setWarehouseInformation(result.data, result.jsonData);
+                            warehouseInformationResult.setValue(new OperateResult(new OperateInUserView(null)));
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            warehouseInformationResult.setValue(new LoginResult(R.string.get_warehouse_failed));
+                            warehouseInformationResult.setValue(new OperateResult(new OperateError(-1, WarehouseApp.getInstance().getString(R.string.errorData), null)));
                         }
                     }
                     break;
@@ -172,11 +135,11 @@ public class LoginViewModel extends ViewModel {
 
     public void loginDataChanged(String username, String password) {
         if (!isUserNameValid(username)) {
-            loginFormState.setValue(new LoginFormState(R.string.invalid_username, null));
+            loginFormState.setValue(new OperateResult(new OperateError(-1, WarehouseApp.getInstance().getString(R.string.invalid_username), null)));
         } else if (!isPasswordValid(password)) {
-            loginFormState.setValue(new LoginFormState(null, R.string.invalid_password));
+            loginFormState.setValue(new OperateResult(new OperateError(-2, WarehouseApp.getInstance().getString(R.string.invalid_password), null)));
         } else {
-            loginFormState.setValue(new LoginFormState(true));
+            loginFormState.setValue(new OperateResult(new OperateInUserView(null)));
         }
     }
 

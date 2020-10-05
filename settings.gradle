@@ -1,2 +1,22 @@
 rootProject.name='SheBangsWarehouse'
 include ':app'
+
+//扫描头
+include ':scannerlibrary'
+project(':scannerlibrary').projectDir = new File(settingsDir, '../Scanner/app/scannerlibrary')
+
+//组件库
+include ':componentlibrary'
+project(':componentlibrary').projectDir = new File(settingsDir, '../NicComponent/app/componentlibrary')
+
+//工具库
+include ':toollibrary'
+project(':toollibrary').projectDir = new File(settingsDir, '../Tool/app/toollibrary')
+
+//广告通知管理
+include ':advertnoticelibrary'
+project(':advertnoticelibrary').projectDir = new File(settingsDir, '../AdvertNotice/app/advertnoticelibrary')
+
+//打印机--优博讯
+include ':printerlibraryforufovo'
+project(':printerlibraryforufovo').projectDir = new File(settingsDir, '../PrinterForUfovo/app/printerlibraryforufovo')

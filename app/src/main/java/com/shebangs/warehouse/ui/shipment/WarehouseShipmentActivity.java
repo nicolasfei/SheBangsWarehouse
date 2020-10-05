@@ -1,10 +1,11 @@
 package com.shebangs.warehouse.ui.shipment;
 
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Message;
 import android.text.Editable;
 import android.text.Html;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -18,66 +19,72 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.baoyz.swipemenulistview.SwipeMenu;
-import com.baoyz.swipemenulistview.SwipeMenuCreator;
-import com.baoyz.swipemenulistview.SwipeMenuItem;
-import com.baoyz.swipemenulistview.SwipeMenuListView;
+import com.nicolas.componentlibrary.pullrefresh.PullRefreshListView;
+import com.nicolas.scannerlibrary.PPdaScanner;
+import com.nicolas.scannerlibrary.Scanner;
+import com.nicolas.toollibrary.BruceDialog;
+import com.nicolas.toollibrary.Tool;
 import com.shebangs.warehouse.BaseActivity;
 import com.shebangs.warehouse.R;
 import com.shebangs.warehouse.common.InputFormState;
 import com.shebangs.warehouse.common.OperateResult;
-import com.shebangs.warehouse.common.WarehouseDialog;
-import com.shebangs.warehouse.hardware.scanner.PPdaScanner;
-import com.shebangs.warehouse.hardware.scanner.Scanner;
-import com.shebangs.warehouse.tool.Utils;
-import com.shebangs.warehouse.ui.receipt.ReceiptGoodsInformationAdapter1;
+import com.shebangs.warehouse.data.ShipmentGoodsStatisticsAdapter;
+import com.shebangs.warehouse.warehouse.WarehouseKeeper;
 
-import static com.shebangs.warehouse.tool.Tool.dp2px;
 
-public class WarehouseShipmentActivity extends BaseActivity {
-
+public class WarehouseShipmentActivity extends BaseActivity implements View.OnClickListener {
     private TextView warehouseName;
-    private TextView onDutyStaff;
-    private TextView businessTime;
     private TextView branch;
     private EditText codeEdit;
     private Scanner scanner;                //扫描头
-    private EditText remarkEdit;
     private TextView total;
     private Button submit;
 
     private WarehouseShipmentViewModel viewModel;
-    private ReceiptGoodsInformationAdapter1 adapter;
+
+    private PullRefreshListView pullRefreshListView1;
+    private PullRefreshListView pullRefreshListView2;
+    private ShipmentGoodsStatisticsAdapter adapter;
+    private ShipmentGoodsStatisticsAdapter adapter2;
+
+    private String lastCode = "";            //上一次扫描的条码
+
+    private String choiceBranchCode = "";      //当前选择的要发货的分店编码
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_warehouse_shipment);
+        setContentView(R.layout.warehouse_shipment_content);
         this.viewModel = new ViewModelProvider(this).get(WarehouseShipmentViewModel.class);
         //库房
-        this.warehouseName = findViewById(R.id.warehouseName);
-        this.warehouseName.setOnClickListener(this.listener);
-        //在岗人员
-        this.onDutyStaff = findViewById(R.id.warehouseStaffName);
-        this.onDutyStaff.setOnClickListener(this.listener);
-        //出库时间
-//        this.businessTime = findViewById(R.id.businessTime);
-//        this.businessTime.setOnClickListener(this.listener);
+        this.warehouseName = findClickView(R.id.warehouseName);
+
         //分店
-        this.branch = findViewById(R.id.branch);
-        this.branch.setOnClickListener(this.listener);
+        this.branch = findClickView(R.id.branchName);
+        this.branch.setHintTextColor(Color.RED);
+        this.branch.setHint(R.string.branch_choice);
+        this.branch.setClickable(true);
 
         //条码输入框
         this.codeEdit = findViewById(R.id.codeEdit);
-        /**
-         * 初始化扫描头
-         */
-        scanner = new PPdaScanner(this);
-        scanner.setOnScannerScanResultListener(new Scanner.OnScannerScanResultListener() {
+        this.codeEdit.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (KeyEvent.KEYCODE_ENTER == keyCode && event.getAction() == KeyEvent.ACTION_UP) {
+                    handlerScanResultInKeyListen(codeEdit.getText().toString());
+                    return true;
+                }
+                return false;
+            }
+        });
+        this.codeEdit.requestFocus();
+
+        //初始化扫描头
+        this.scanner = new PPdaScanner(this);
+        this.scanner.setOnScannerScanResultListener(new Scanner.OnScannerScanResultListener() {
             @Override
             public void scanResult(String scan) {
-                codeEdit.setText(scan);
-                queryCodeInformation(scan);
+                handlerScanResultInBroadcast(scan);
             }
         });
         TextWatcher afterTextChangedListener = new TextWatcher() {
@@ -100,16 +107,15 @@ public class WarehouseShipmentActivity extends BaseActivity {
         this.codeEdit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    queryCodeInformation(codeEdit.getText().toString());
+                if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT) {
+                    handlerManualCodeInput(codeEdit.getText().toString());
                 }
                 return false;
             }
         });
         //合计
         this.total = findViewById(R.id.total);
-        //备注
-        this.remarkEdit = findViewById(R.id.remarkEdit);
+
         //提交
         this.submit = findViewById(R.id.submit);
         this.submit.setOnClickListener(new View.OnClickListener() {
@@ -118,214 +124,215 @@ public class WarehouseShipmentActivity extends BaseActivity {
                 viewModel.submitBusinessData();
             }
         });
-        //swipeMenuListView
-        SwipeMenuListView swipeMenuListView = findViewById(R.id.swipeMenuListView);
-        //左滑菜单
-        SwipeMenuCreator creator = new SwipeMenuCreator() {
+        this.submit.setClickable(false);
 
+        //待发货清单
+        this.pullRefreshListView1 = findViewById(R.id.swipeMenuListView1);
+        //适配器
+        this.adapter = new ShipmentGoodsStatisticsAdapter(this, viewModel.getScanStatistics());
+        this.adapter.setOnShipmentGoodsStatisticsClickListener(new ShipmentGoodsStatisticsAdapter.OnShipmentGoodsStatisticsClickListener() {
             @Override
-            public void create(SwipeMenu menu) {
-                // create "delete" item
-                SwipeMenuItem deleteItem = new SwipeMenuItem(
-                        getApplicationContext());
-                // set item background
-                deleteItem.setBackground(new ColorDrawable(Color.rgb(0xC9, 0xC9,
-                        0xCE)));
-                // set item width
-                deleteItem.setWidth(dp2px(90));
-                // set item title
-                deleteItem.setTitle(getString(R.string.delete));
-                // set item title fontsize
-                deleteItem.setTitleSize(18);
-                // set item title font color
-                deleteItem.setTitleColor(Color.WHITE);
-                // add to menu
-                menu.addMenuItem(deleteItem);
-            }
-        };
-        //添加左滑菜单
-        swipeMenuListView.setMenuCreator(creator);
-        swipeMenuListView.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
-                switch (index) {
-                    case 0:
-                        deleteGoods(position);
-                        break;
-                }
-                return true;
+            public void onNotScannedClick(int position) {       //某个供应商的所有订单被手动扫描
+                BruceDialog.showAlertDialog(WarehouseShipmentActivity.this, getString(R.string.hint),
+                        getString(R.string.sureToSetThisStatisticsToScannedAll), new BruceDialog.OnAlertDialogListener() {
+                            @Override
+                            public void onSelect(boolean confirm) {
+                                if (confirm) {
+                                    viewModel.setShipmentStatisticsAllScan(position);
+                                }
+                            }
+                        });
             }
         });
-        this.adapter = new ReceiptGoodsInformationAdapter1(this, viewModel.getGoodsInformationList());
-        swipeMenuListView.setAdapter(this.adapter);
-        /**
-         * 监听库房
-         */
-        this.viewModel.getSetWarehouseNameResult().observe(this, new Observer<OperateResult>() {
+        this.pullRefreshListView1.setAdapter(this.adapter);
+        this.pullRefreshListView1.setOnRefreshListener(new PullRefreshListView.OnRefreshListener() {
             @Override
-            public void onChanged(OperateResult operateResult) {
-                if (operateResult.getSuccess() != null) {
-                    updateWarehouseName();
-                }
+            public void onRefresh() {
+                viewModel.refreshData();
             }
         });
-        /**
-         * 监听在岗人员切换
-         */
-        this.viewModel.getSetNewOnDutyStaffSwitchResult().observe(this, new Observer<OperateResult>() {
-            @Override
-            public void onChanged(OperateResult operateResult) {
-                if (operateResult.getSuccess() != null) {
-                    onDutyStaffChangeLogin();
-                }
-            }
-        });
-        /**
-         * 监听新的人员登陆结果
-         */
-        this.viewModel.getSetNewOnDutyStaffLoginResult().observe(this, new Observer<OperateResult>() {
-            @Override
-            public void onChanged(OperateResult operateResult) {
-                dismissProgressDialog();
-                if (operateResult.getSuccess() != null) {
-                    updateOnDutyStaff();
-                }
-                if (operateResult.getError() != null) {
-                    Utils.toast(WarehouseShipmentActivity.this, operateResult.getError().getErrorMsg());
-                }
-            }
-        });
-        /**
-         * 监听业务时间
-         */
-        this.viewModel.getSetBusinessTimeResult().observe(this, new Observer<OperateResult>() {
-            @Override
-            public void onChanged(OperateResult operateResult) {
-                if (operateResult.getSuccess() != null) {
-                    updateBusinessTime();
-                }
-            }
-        });
-        /**
-         * 监听条码输入变化
-         */
+        this.pullRefreshListView1.disablePushLoadMore();
+
+        //已扫描清单
+        this.pullRefreshListView2 = findViewById(R.id.swipeMenuListView2);
+        //适配器
+        this.adapter2 = new ShipmentGoodsStatisticsAdapter(this, viewModel.getScannedStatistics());
+        this.pullRefreshListView2.setAdapter(this.adapter2);
+        this.pullRefreshListView2.disablePullRefresh();
+        this.pullRefreshListView2.disablePushLoadMore();
+
+        //监听条码输入变化
         viewModel.getInputFormState().observe(this, new Observer<InputFormState>() {
             @Override
             public void onChanged(InputFormState inputFormState) {
                 if (inputFormState == null) {
                     return;
                 }
-                if (inputFormState.getInputError() != null) {
-                    codeEdit.setError(inputFormState.getInputError());
-                }
+//                if (inputFormState.getInputError() != null) {
+//                    codeEdit.setError(inputFormState.getInputError());
+//                }
             }
         });
-        /**
-         * 监听条码信息查询
-         */
+
+        //监听条码信息查询
         this.viewModel.getQueryCodeInformationResult().observe(this, new Observer<OperateResult>() {
             @Override
             public void onChanged(OperateResult operateResult) {
                 dismissProgressDialog();
                 if (operateResult.getSuccess() != null) {
-                    updateBusinessInformation();
+                    Message msg = operateResult.getSuccess().getMessage();
+                    if (msg != null) {
+                        BruceDialog.showAlertDialog(WarehouseShipmentActivity.this, getString(R.string.success), (String) msg.obj,
+                                new BruceDialog.OnAlertDialogListener() {
+                                    @Override
+                                    public void onSelect(boolean confirm) {
+
+                                    }
+                                });
+                    } else {
+                        updateBusinessInformation();
+                    }
                 }
                 if (operateResult.getError() != null) {
-                    Utils.toast(WarehouseShipmentActivity.this, operateResult.getError().getErrorMsg());
+                    BruceDialog.showAlertDialog(WarehouseShipmentActivity.this, getString(R.string.failed), operateResult.getError().getErrorMsg(),
+                            new BruceDialog.OnAlertDialogListener() {
+                                @Override
+                                public void onSelect(boolean confirm) {
+
+                                }
+                            });
                 }
+                codeEdit.requestFocus();        //codeEdit获取焦点
+                codeEdit.setSelection(0);       //codeEdit光标移到起始位置
             }
         });
-        /**
-         * 监听数据提交结果
-         */
+
+        //监听数据提交结果
         this.viewModel.getSubmitBusinessDataResult().observe(this, new Observer<OperateResult>() {
             @Override
             public void onChanged(OperateResult operateResult) {
                 if (operateResult.getError() != null) {
-                    Utils.toast(WarehouseShipmentActivity.this, operateResult.getError().getErrorMsg());
+                    BruceDialog.showAlertDialog(WarehouseShipmentActivity.this, getString(R.string.failed), operateResult.getError().getErrorMsg(),
+                            new BruceDialog.OnAlertDialogListener() {
+                                @Override
+                                public void onSelect(boolean confirm) {
+
+                                }
+                            });
                 }
                 if (operateResult.getSuccess() != null) {
-                    //提交后处理
-                    Utils.toast(WarehouseShipmentActivity.this, WarehouseShipmentActivity.this.getString(R.string.submit_success));
-                    viewModel.updateSubmitSuccess();
+                    BruceDialog.showAlertDialog(WarehouseShipmentActivity.this, getString(R.string.success),
+                            getString(R.string.submit_success),
+                            new BruceDialog.OnAlertDialogListener() {
+                                @Override
+                                public void onSelect(boolean confirm) {
+
+                                }
+                            });
+                    updateBusinessInformation();
                 }
             }
         });
-        /**
-         * 监听查询须发货分店结果
-         */
-        this.viewModel.getQueryDeliveryRequiredBranchResult().observe(this, new Observer<OperateResult>() {
-            @Override
-            public void onChanged(OperateResult operateResult) {
-                dismissProgressDialog();
-                if (operateResult.getSuccess() != null) {
-                    showAndChoiceDeliveryRequiredBranch();
-                }
-                if (operateResult.getError() != null) {
-                    Utils.toast(WarehouseShipmentActivity.this, operateResult.getError().getErrorMsg());
-                }
-            }
-        });
-        /**
-         * 监听设置当前需要发货的分店结果
-         */
-        this.viewModel.getSetCurrentDeliveryRequiredBranchResult().observe(this, new Observer<OperateResult>() {
-            @Override
-            public void onChanged(OperateResult operateResult) {
-                if (operateResult.getSuccess() != null) {
-                    updateCurrentDeliveryRequiredBranch();
-                    showProgressDialog();
-                    viewModel.queryDeliveryRequiredBranchGoodsList();       //查询需发货物清单
-                }
-            }
-        });
-        /**
-         * 监听查询分店发货清单结果
-         */
+
+        //监听拉取分店订单列表
         this.viewModel.getQueryDeliveryRequiredBranchGoodsListResult().observe(this, new Observer<OperateResult>() {
             @Override
             public void onChanged(OperateResult operateResult) {
-                dismissProgressDialog();
                 if (operateResult.getSuccess() != null) {
+                    if (operateResult.getSuccess().getMessage() != null) {
+                        BruceDialog.showAlertDialog(WarehouseShipmentActivity.this, getString(R.string.success), (String) operateResult.getSuccess().getMessage().obj,
+                                new BruceDialog.OnAlertDialogListener() {
+                                    @Override
+                                    public void onSelect(boolean confirm) {
+
+                                    }
+                                });
+                    }
+                    //更新分店名字
+                    choiceBranchCode = viewModel.getCurrentDeliveryRequiredBranchCode();
+                    updateBranchID(choiceBranchCode);
                     updateBusinessInformation();
                 }
                 if (operateResult.getError() != null) {
-                    Utils.toast(WarehouseShipmentActivity.this, operateResult.getError().getErrorMsg());
+                    BruceDialog.showAlertDialog(WarehouseShipmentActivity.this, getString(R.string.failed), operateResult.getError().getErrorMsg(),
+                            new BruceDialog.OnAlertDialogListener() {
+                                @Override
+                                public void onSelect(boolean confirm) {
+
+                                }
+                            });
                 }
+                if (pullRefreshListView1.isPullToRefreshing()) {
+                    pullRefreshListView1.refreshFinish();
+                }
+                dismissProgressDialog();
             }
         });
 
         updateWarehouseName();
-        updateBusinessTime();
-        updateOnDutyStaff();
-        updateBusinessInformation();
     }
 
-    private View.OnClickListener listener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.warehouseName:        //选择库房
-                    warehouseChoice();
-                    break;
-                case R.id.warehouseStaffName:   //在岗工作人员
-                    onDutyStaffChoice();
-                    break;
-                case R.id.businessTime:         //入库时间
-                    businessTimeChoice();
-                    break;
-                case R.id.branch:
-                    queryDeliveryRequiredBranch();  //查询须发货的分店
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
+    /**
+     * 手动输入条码处理
+     *
+     * @param code 条码
+     */
+    private void handlerManualCodeInput(String code) {
+        lastCode = code;
+        Tool.hideSoftInput(this);
+        queryCodeInformation(code);
+    }
 
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.warehouseName:        //选择库房
+                warehouseChoice();
+                break;
+            case R.id.branchName:
+                queryDeliveryRequiredBranch();  //拉取须发货的分店
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * 以分店来查询需要发货的清单
+     */
     private void queryDeliveryRequiredBranch() {
+        //选择分店
+        BruceDialog.showAutoCompleteTextViewDialog(R.string.branch_choice, R.string.branch_input_please, InputType.TYPE_CLASS_TEXT,
+                WarehouseShipmentActivity.this, WarehouseKeeper.getInstance().getBranchList(), new BruceDialog.OnInputFinishListener() {
+                    @Override
+                    public void onInputFinish(String itemName) {
+                        if (TextUtils.isEmpty(itemName)) {
+                            BruceDialog.showAlertDialog(WarehouseShipmentActivity.this, getString(R.string.hit),
+                                    getString(R.string.no_choice_branch),
+                                    new BruceDialog.OnAlertDialogListener() {
+                                        @Override
+                                        public void onSelect(boolean confirm) {
+
+                                        }
+                                    });
+                        } else {
+                            if (!choiceBranchCode.equals(itemName)) {
+                                choiceBranchCode = itemName;
+                                updateBranchID(choiceBranchCode);
+                                queryBranchOrderList();
+                            }
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 查询分店订单列表
+     */
+    private void queryBranchOrderList() {
         showProgressDialog();
-        viewModel.queryDeliveryRequiredBranch();
+        viewModel.queryDeliveryRequiredBranch(choiceBranchCode);
     }
 
     @Override
@@ -341,77 +348,74 @@ public class WarehouseShipmentActivity extends BaseActivity {
     }
 
     /**
-     * 业务时间
-     */
-    private void businessTimeChoice() {
-        WarehouseDialog.showDateTimePickerDialog(this, new WarehouseDialog.OnDateTimePickListener() {
-            @Override
-            public void OnDateTimePick(String dateTime) {
-                viewModel.setBusinessTime(dateTime);
-            }
-        });
-    }
-
-    /**
-     * 在岗人员选择
-     */
-    private void onDutyStaffChoice() {
-        WarehouseDialog.showOnDutyStaffChoiceDialog(this, new WarehouseDialog.OnSingleChoiceItemListener() {
-            @Override
-            public void onChoiceItem(String name) {
-                viewModel.setNewOnDutyStaffSwitch(name);
-            }
-        });
-    }
-
-    /**
-     * 在岗工作人员切换登陆
-     */
-    private void onDutyStaffChangeLogin() {
-        WarehouseDialog.showOnDutyStaffChangeLoginDialog(this, new WarehouseDialog.OnSingleInputItemListener() {
-            @Override
-            public void onInputItem(String value) {
-                if (TextUtils.isEmpty(value) || value.length() < 6) {
-                    Utils.toast(WarehouseShipmentActivity.this, getString(R.string.invalid_password));
-                } else {
-                    showProgressDialog();
-                    viewModel.newOnDutyStaffLogin(value);
-                }
-            }
-
-            @Override
-            public void onNothing() {
-                Utils.toast(WarehouseShipmentActivity.this, getString(R.string.invalid_password));
-            }
-        });
-    }
-
-    /**
      * 库房选择
      */
     private void warehouseChoice() {
-        WarehouseDialog.showWarehouseChoiceDialog(this, new WarehouseDialog.OnSingleChoiceItemListener() {
+//        TreeNodeViewDialog.showTreeNodeViewDialog(WarehouseShipmentActivity.this, getString(R.string.warehouse_choice),
+//                WarehouseKeeper.getInstance().getWarehouseTree(), false, new TreeNodeViewDialog.OnTreeNodeViewDialogListener() {
+//                    @Override
+//                    public void onChoice(List<TreeNode> node) {
+//                        if (node != null && node.size() > 0) {
+//                            if (node.size() == 1) {
+//                                WarehouseKeeper.getInstance().setOnDutyWarehouse(node.get(0).name);
+//                                updateWarehouseName();
+//                                queryBranchOrderList();
+//                            }
+////                            updateStoreRoomId((node.size() == 1 ? node.get(0).name : node.get(0).name + "..."));
+////                            for (TreeNode item : node) {
+////                                viewModel.getQueryCondition().addStoreRoomID(item.id);
+////                            }
+//                        }
+//                    }
+//                });
+        BruceDialog.showSingleChoiceDialog(R.string.warehouse_choice, this, WarehouseKeeper.getInstance().getWarehouseInformationList(), new BruceDialog.OnChoiceItemListener() {
             @Override
-            public void onChoiceItem(String name) {
-                viewModel.setWarehouseName(name);
+            public void onChoiceItem(String itemName) {
+                if (TextUtils.isEmpty(itemName)) {
+                    return;
+                } else {
+                    if (!itemName.equals(WarehouseKeeper.getInstance().getOnDutyWarehouse().name)) {
+                        WarehouseKeeper.getInstance().setOnDutyWarehouse(itemName);
+                        updateWarehouseName();
+                        queryBranchOrderList();
+                    }
+                }
             }
         });
     }
 
     /**
-     * 分店选择
+     * 处理扫描结果--按键监听方式
+     *
+     * @param scan 扫描结果
      */
-    private void showAndChoiceDeliveryRequiredBranch() {
-        WarehouseDialog.showAndChoiceDeliveryRequiredBranchDialog(this, viewModel.getDeliveryRequiredBranches(), new WarehouseDialog.OnSingleChoiceItemListener() {
-            @Override
-            public void onChoiceItem(String value) {
-                viewModel.setCurrentDeliveryRequiredBranch(value);
-            }
-        });
+    private void handlerScanResultInKeyListen(String scan) {
+//        String currCode;
+//        if (!TextUtils.isEmpty(lastCode)) {
+//            currCode = scan.substring(0, scan.length() - lastCode.length());
+//        } else {
+//            currCode = scan;
+//        }
+        codeEdit.setText("");
+//        lastCode = currCode;
+        queryCodeInformation(scan);
     }
 
     /**
-     * 查条码
+     * 处理扫描结果--广播方式
+     *
+     * @param scan scan
+     */
+    private void handlerScanResultInBroadcast(String scan) {
+        codeEdit.setText("");
+//        lastCode = scan;
+        queryCodeInformation(scan);
+    }
+
+    /**
+     * 处理条码输入
+     * 如果第一次扫描，这是查询该条码上的分店的代发货清单
+     * 否则是查询条码信息
      *
      * @param code 条码
      */
@@ -424,41 +428,18 @@ public class WarehouseShipmentActivity extends BaseActivity {
      * 更新库房名
      */
     private void updateWarehouseName() {
-        String value = getString(R.string.warehouse_name) + "\u3000\u3000\u3000\u3000\u3000" + this.viewModel.getWarehouseName();
+        String value = getString(R.string.warehouse_name) + "\u3000\u3000\u3000\u3000\u3000" + WarehouseKeeper.getInstance().getOnDutyWarehouse().name;
         this.warehouseName.setText(value);
     }
 
     /**
-     * 更新在岗人员
-     */
-    private void updateOnDutyStaff() {
-        String value = getString(R.string.warehouse_staff_name) + "\u3000\u3000\u3000\u3000\u3000" + this.viewModel.getOnDutyStaff();
-        this.onDutyStaff.setText(value);
-    }
-
-    /**
-     * 更新业务时间
-     */
-    private void updateBusinessTime() {
-        String value = getString(R.string.exwarehouse_business_time) + "\u3000\u3000\u3000\u3000" + this.viewModel.getBusinessTime();
-//        this.businessTime.setText(value);
-    }
-
-    /**
-     * 更新当前需发货店铺名
-     */
-    private void updateCurrentDeliveryRequiredBranch() {
-        String value = getString(R.string.branch_code1) + "\u3000\u3000\u3000\u3000" + this.viewModel.getCurrentDeliveryRequiredBranch();
-        this.branch.setText(value);
-    }
-
-    /**
-     * 删除商品
+     * 更新分店ID
      *
-     * @param position pos
+     * @param branchID 分店ID
      */
-    private void deleteGoods(int position) {
-        this.viewModel.deleteGoods(position);
+    private void updateBranchID(String branchID) {
+        String value = getString(R.string.branch_id) + "\u3000\u3000\u3000\u3000" + branchID;
+        this.branch.setText(value);
     }
 
     /**
@@ -467,12 +448,16 @@ public class WarehouseShipmentActivity extends BaseActivity {
     private void updateBusinessInformation() {
         //更新商品信息
         this.adapter.notifyDataSetChanged();
+        this.adapter2.notifyDataSetChanged();
         //合计更新
-        String value = getString(R.string.total) + ":" + this.viewModel.getTotal() + "\u3000" +
-                "<font color=\"blue\">" + getString(R.string.scaned) + getString(R.string.colon_zh) + this.viewModel.getScannedGoodsNum() + "\u3000" + "</font>" +
-                "<font color=\"red\">" + getString(R.string.unScan) + getString(R.string.colon_zh) + this.viewModel.getUnScanGoodsNum() + "</font>";
+        String value = getString(R.string.totalOrder);
+        if (this.viewModel.getTotal() > 0) {
+            value += ":" + this.viewModel.getTotal() + "\u3000" +
+                    "<font color=\"green\">" + getString(R.string.scaned) + getString(R.string.colon_zh) + this.viewModel.getScanTotal() + "\u3000" + "</font>" +
+                    "<font color=\"red\">" + getString(R.string.unScan) + getString(R.string.colon_zh) + (this.viewModel.getNotScanTotal()) + "</font>";
+        }
         this.total.setText(Html.fromHtml(value, Html.FROM_HTML_MODE_COMPACT));
-        if (this.viewModel.getTotal() > 0 && !this.viewModel.isHaveInvalidGoods() && this.viewModel.getScannedGoodsNum() > 0) {
+        if (this.viewModel.getTotal() > 0 && !this.viewModel.isHaveInvalidGoods() && this.viewModel.getScanTotal() > 0) {
             if (!this.submit.isClickable()) {
                 this.submit.setClickable(true);
                 this.submit.setBackground(getDrawable(R.drawable.shape_rectangle_red));
@@ -487,7 +472,6 @@ public class WarehouseShipmentActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        scanner.scannerClose();
         super.onDestroy();
     }
 }

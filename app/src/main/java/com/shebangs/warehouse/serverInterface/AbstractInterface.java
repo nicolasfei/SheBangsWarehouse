@@ -2,10 +2,12 @@ package com.shebangs.warehouse.serverInterface;
 
 import android.util.Log;
 
+import com.nicolas.toollibrary.HttpHandler;
+
 public abstract class AbstractInterface {
 
     private static final String TAG = "AbstractInterface";
-    public static final String COMMAND_URL = "http://192.168.8.128:7866/";
+    public static final String COMMAND_URL = "https://storeroom.scdawn.com/";
 
     private AbstractInterface nextHandler;
 
@@ -33,5 +35,7 @@ public abstract class AbstractInterface {
     public abstract String getUrlParam();
 
     //处理者的处理任务
-    public abstract String echo(CommandVo vo);
+    public String echo(CommandVo vo){
+        return HttpHandler.handlerHttpRequest(vo.url, vo.parameters, vo.requestMode,vo.token, vo.contentType);
+    }
 }

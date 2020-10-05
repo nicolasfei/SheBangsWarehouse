@@ -20,4 +20,9 @@
     <!--date time picker-->
     <dimen name="picker_view_height">160dp</dimen>
     <dimen name="date_unit_text_size">18sp</dimen>
+
+    <dimen name="text_size">12sp</dimen>
+    <dimen name="text_view_margin">5sp</dimen>
+    <dimen name="text_view_item_height">16dp</dimen>
+    <item name="view_height_percent" type="dimen" format="float">0.05</item>
 </resources>

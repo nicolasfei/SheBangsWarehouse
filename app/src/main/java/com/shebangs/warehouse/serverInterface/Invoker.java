@@ -3,11 +3,13 @@ package com.shebangs.warehouse.serverInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.shebangs.warehouse.app.WarehouseApp;
 import com.shebangs.warehouse.serverInterface.login.LoginCommand;
+import com.shebangs.warehouse.serverInterface.manager.ManagerCommand;
 import com.shebangs.warehouse.serverInterface.warehouse.WarehouseCommand;
 
 import java.util.ArrayList;
@@ -23,6 +25,7 @@ public class Invoker {
         //创建所需命令
         commandList = new ArrayList<>();
         commandList.add(new LoginCommand());
+        commandList.add(new ManagerCommand());
         commandList.add(new WarehouseCommand());
     }
 
@@ -34,6 +37,21 @@ public class Invoker {
         //线程异步执行
         TaskThread thread = new TaskThread(vo);
         thread.start();
+    }
+
+    /**
+     * 同步执行
+     *
+     * @param vo 命令
+     */
+    public String synchronousExec(CommandVo vo) {
+        for (Command c : commandList) {
+            if (c.getCommandType() == vo.typeEnum) {
+                Log.d("TaskThread", "run: execute " + vo.url);
+                return c.execute(vo);
+            }
+        }
+        return null;
     }
 
     //设置处理结果回调接口

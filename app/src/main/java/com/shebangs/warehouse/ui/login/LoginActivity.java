@@ -1,15 +1,18 @@
 package com.shebangs.warehouse.ui.login;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -20,42 +23,64 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.nicolas.printerlibraryforufovo.PrinterManager;
+import com.nicolas.toollibrary.AppActivityManager;
+import com.nicolas.toollibrary.BruceDialog;
+import com.nicolas.toollibrary.LoginAutoMatch;
+import com.nicolas.toollibrary.Utils;
 import com.shebangs.warehouse.MainActivity;
 import com.shebangs.warehouse.R;
-import com.shebangs.warehouse.tool.Utils;
+import com.shebangs.warehouse.app.WarehouseApp;
+import com.shebangs.warehouse.common.OperateResult;
 import com.shebangs.warehouse.warehouse.WarehouseKeeper;
 
 public class LoginActivity extends AppCompatActivity {
 
     private LoginViewModel loginViewModel;
     private ProgressDialog loginDialog;
+    private static boolean loginIng = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-        loginViewModel = new ViewModelProvider(this)
-                .get(LoginViewModel.class);
+        AppActivityManager.getInstance().addActivity(this);
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        final EditText usernameEditText = findViewById(R.id.username);
+        setContentView(R.layout.activity_login);
+        loginViewModel = new ViewModelProvider(this).get(LoginViewModel.class);
+
+        //初始化界面
+        final AutoCompleteTextView usernameEditText = findViewById(R.id.username);
         final EditText passwordEditText = findViewById(R.id.password);
         final Button loginButton = findViewById(R.id.login);
+        //添加自动匹配登陆用户账号信息
+        LoginAutoMatch.getInstance().init(this);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, LoginAutoMatch.getInstance().getLoginUserName());
+        usernameEditText.setAdapter(adapter);
+        usernameEditText.setThreshold(1);   //设置输入几个字符后开始出现提示 默认是2
 
         /**
          * 监听登陆信息输入
          */
-        loginViewModel.getLoginFormState().observe(this, new Observer<LoginFormState>() {
+        loginViewModel.getLoginFormState().observe(this, new Observer<OperateResult>() {
             @Override
-            public void onChanged(@Nullable LoginFormState loginFormState) {
+            public void onChanged(@Nullable OperateResult loginFormState) {
                 if (loginFormState == null) {
                     return;
                 }
-                loginButton.setEnabled(loginFormState.isDataValid());
-                if (loginFormState.getUsernameError() != null) {
-                    usernameEditText.setError(getString(loginFormState.getUsernameError()));
+                if (loginFormState.getSuccess() != null) {
+                    loginButton.setEnabled(true);
                 }
-                if (loginFormState.getPasswordError() != null) {
-                    passwordEditText.setError(getString(loginFormState.getPasswordError()));
+                if (loginFormState.getError() != null) {
+                    switch (loginFormState.getError().getErrorCode()) {
+                        case -1:
+                            usernameEditText.setError(loginFormState.getError().getErrorMsg());
+                            break;
+                        case -2:
+                            passwordEditText.setError(loginFormState.getError().getErrorMsg());
+                            break;
+                    }
                 }
             }
         });
@@ -63,17 +88,18 @@ public class LoginActivity extends AppCompatActivity {
         /**
          * 监听登陆结果
          */
-        loginViewModel.getLoginResult().observe(this, new Observer<LoginResult>() {
+        loginViewModel.getLoginResult().observe(this, new Observer<OperateResult>() {
             @Override
-            public void onChanged(LoginResult result) {
+            public void onChanged(OperateResult result) {
                 if (result.getError() != null) {
                     dismissLoginDialog();
-                    Utils.toast(LoginActivity.this, result.getError());
+                    Utils.toast(LoginActivity.this, result.getError().getErrorMsg());
+                    loginIng = false;
                 }
                 if (result.getSuccess() != null) {
                     showLoginDialog(getString(R.string.getting_warehouse));
                     //获取库房信息
-                    loginViewModel.queryWarehouseInformation(WarehouseKeeper.getInstance().userKey);
+                    loginViewModel.queryWarehouseInformation();
                 }
             }
         });
@@ -81,35 +107,17 @@ public class LoginActivity extends AppCompatActivity {
         /**
          * 监听获取库房信息
          */
-        loginViewModel.getWarehouseInformationResult().observe(this, new Observer<LoginResult>() {
+        loginViewModel.getWarehouseInformationResult().observe(this, new Observer<OperateResult>() {
             @Override
-            public void onChanged(LoginResult result) {
-
-                if (result.getError() != null) {
-                    dismissLoginDialog();
-                    Utils.toast(LoginActivity.this, result.getError());
-                }
-                if (result.getSuccess() != null) {
-                    showLoginDialog(getString(R.string.getting_staff));
-                    //获取库员list
-                    loginViewModel.queryWarehouseKeeperList("");
-                }
-            }
-        });
-
-        /**
-         * 监听获取库员信息
-         */
-        loginViewModel.getWarehouseStaffListResult().observe(this, new Observer<LoginResult>() {
-            @Override
-            public void onChanged(LoginResult result) {
+            public void onChanged(OperateResult result) {
                 dismissLoginDialog();
                 if (result.getError() != null) {
-                    Utils.toast(LoginActivity.this, result.getError());
+                    Utils.toast(LoginActivity.this, result.getError().getErrorMsg());
+                    loginIng = false;
                 }
                 if (result.getSuccess() != null) {
-                    //选择当前在岗导购
-                    choiceOnDutyGuide();
+                    //选择库房
+                    choiceWarehouse();
                 }
             }
         });
@@ -152,51 +160,57 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                loadingProgressBar.setVisibility(View.VISIBLE);
-                showLoginDialog(getString(R.string.login_ing));
-                String userName = usernameEditText.getText().toString();
-                String password = passwordEditText.getText().toString();
-                WarehouseKeeper.getInstance().setLoginName(userName);
-                WarehouseKeeper.getInstance().setLoginPassword(password);
-                loginViewModel.login(userName, password);
+                if (!loginIng) {
+                    loginIng = true;
+                    showLoginDialog(getString(R.string.login_ing));
+                    String userName = usernameEditText.getText().toString();
+                    String password = passwordEditText.getText().toString();
+                    WarehouseKeeper.getInstance().setLoginName(userName);
+                    WarehouseKeeper.getInstance().setLoginPassword(password);
+                    loginViewModel.login(userName, password);
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1) {
+            loginIng = false;
+        }
+    }
+
+    /**
+     * 用户选择当前库房
+     */
+    private void choiceWarehouse() {
+        BruceDialog.showSingleChoiceDialog(R.string.warehouse_choice, this, WarehouseKeeper.getInstance().getWarehouseInformationList(), new BruceDialog.OnChoiceItemListener() {
+            @Override
+            public void onChoiceItem(String itemName) {
+                if (TextUtils.isEmpty(itemName)) {
+                    choiceWarehouse();
+                } else {
+                    WarehouseKeeper.getInstance().setOnDutyWarehouse(itemName);
+                    updateUiWithUser(WarehouseKeeper.getInstance().getOnDutyStaffName());
+                }
             }
         });
     }
 
     /**
-     * 选择在岗库员
+     * 欢迎登陆
+     * @param name 用户名
      */
-    private void choiceOnDutyGuide() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.login_onduty_staff);
-        builder.setCancelable(false);
-
-        final String items[] = new String[WarehouseKeeper.getInstance().staffs.size()];
-        for (int i = 0; i < WarehouseKeeper.getInstance().staffs.size(); i++) {
-            items[i] = WarehouseKeeper.getInstance().staffs.get(i).name;
-        }
-        // -1代表没有条目被选中
-        builder.setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // 设置当前在岗人员
-                WarehouseKeeper.getInstance().setOnDutyStaff(items[which]);
-                updateUiWithUser(new LoggedInUserView(items[which]));       //登陆成功
-                // [2]把对话框关闭
-                dialog.dismiss();
-            }
-        });
-
-        // 最后一步 一定要记得 和Toast 一样 show出来
-        builder.create().show();
-    }
-
-    private void updateUiWithUser(LoggedInUserView model) {
-        String welcome = getString(R.string.welcome) + model.getDisplayName();
+    private void updateUiWithUser(String name) {
+        String welcome = getString(R.string.welcome) + name;
         // TODO : initiate successful logged in experience
         Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
+        //添加登陆用户
+        LoginAutoMatch.getInstance().addLoginUser(WarehouseKeeper.getInstance().getLoginName(), WarehouseKeeper.getInstance().getLoginPassword());
+        //跳转到主页面
         Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, 1);
     }
 
     private void showLoginDialog(String loginMsg) {
@@ -215,5 +229,12 @@ public class LoginActivity extends AppCompatActivity {
         if (loginDialog.isShowing()) {
             loginDialog.dismiss();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        //打印机模块注销
+        AppActivityManager.getInstance().removeActivity(this);
+        super.onDestroy();
     }
 }
