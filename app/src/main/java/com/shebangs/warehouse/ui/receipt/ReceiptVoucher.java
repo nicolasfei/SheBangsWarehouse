@@ -83,17 +83,21 @@ public class ReceiptVoucher {
         esc.addText("收货日期:" + date + "\n");
         esc.addText("供应商编号:" + supplier + "\n");
         esc.addText("库房编号:" + warehouse + "\n");
-        esc.addText("收货账号:" + receiptStaff + "\n\n");
+        esc.addText("收货账号:" + receiptStaff + "\n");
         esc.addPrintAndLineFeed();
 
         //打印收到货的分店列表
-        for (int i = 1; i <= fIDs.size(); i++) {
+        int i = 1;
+        for (; i <= fIDs.size(); i++) {
 //            String value = (i < 10 ? ("0" + i) : i) + " " + fIDs.get(i - 1) + "\t";
             String value = fIDs.get(i - 1) + "\t";
             esc.addText(value);
             if (i % 4 == 0) {
                 esc.addText("\n\n");
             }
+        }
+        if ((i-1) % 4 != 0) {
+            esc.addText("\n");
         }
         esc.addPrintAndLineFeed();
 

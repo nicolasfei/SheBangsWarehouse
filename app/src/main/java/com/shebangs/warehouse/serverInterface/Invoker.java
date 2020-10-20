@@ -7,6 +7,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.shebangs.warehouse.app.LoginManager;
 import com.shebangs.warehouse.app.WarehouseApp;
 import com.shebangs.warehouse.serverInterface.login.LoginCommand;
 import com.shebangs.warehouse.serverInterface.manager.ManagerCommand;
@@ -74,7 +75,12 @@ public class Invoker {
                 case 1:
                     if (callback != null) {
                         Bundle b = msg.getData();
-                        callback.execResult(new CommandResponse(b.getString("result"), b.getString("url")));
+                        CommandResponse response = new CommandResponse(b.getString("result"), b.getString("url"));
+                        if (response.reLogin) {     //服务器要求重新登陆
+                            LoginManager.getInstance().loginExpire(response.msg);
+                        } else {
+                            callback.execResult(response);
+                        }
                     }
                     break;
                 default:

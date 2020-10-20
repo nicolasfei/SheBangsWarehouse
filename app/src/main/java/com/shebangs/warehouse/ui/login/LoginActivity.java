@@ -1,6 +1,5 @@
 package com.shebangs.warehouse.ui.login;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -23,21 +22,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.nicolas.printerlibraryforufovo.PrinterManager;
 import com.nicolas.toollibrary.AppActivityManager;
 import com.nicolas.toollibrary.BruceDialog;
 import com.nicolas.toollibrary.LoginAutoMatch;
 import com.nicolas.toollibrary.Utils;
 import com.shebangs.warehouse.MainActivity;
 import com.shebangs.warehouse.R;
-import com.shebangs.warehouse.app.WarehouseApp;
 import com.shebangs.warehouse.common.OperateResult;
 import com.shebangs.warehouse.warehouse.WarehouseKeeper;
 
 public class LoginActivity extends AppCompatActivity {
 
     private LoginViewModel loginViewModel;
-    private ProgressDialog loginDialog;
     private static boolean loginIng = false;
 
     @Override
@@ -60,9 +56,7 @@ public class LoginActivity extends AppCompatActivity {
         usernameEditText.setAdapter(adapter);
         usernameEditText.setThreshold(1);   //设置输入几个字符后开始出现提示 默认是2
 
-        /**
-         * 监听登陆信息输入
-         */
+        //监听登陆信息输入
         loginViewModel.getLoginFormState().observe(this, new Observer<OperateResult>() {
             @Override
             public void onChanged(@Nullable OperateResult loginFormState) {
@@ -85,32 +79,28 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        /**
-         * 监听登陆结果
-         */
+        //监听登陆结果
         loginViewModel.getLoginResult().observe(this, new Observer<OperateResult>() {
             @Override
             public void onChanged(OperateResult result) {
                 if (result.getError() != null) {
-                    dismissLoginDialog();
+                    BruceDialog.dismissProgressDialog();
                     Utils.toast(LoginActivity.this, result.getError().getErrorMsg());
                     loginIng = false;
                 }
                 if (result.getSuccess() != null) {
-                    showLoginDialog(getString(R.string.getting_warehouse));
+                    BruceDialog.showProgressDialog(LoginActivity.this, getString(R.string.getting_warehouse));
                     //获取库房信息
                     loginViewModel.queryWarehouseInformation();
                 }
             }
         });
 
-        /**
-         * 监听获取库房信息
-         */
+        //监听获取库房信息
         loginViewModel.getWarehouseInformationResult().observe(this, new Observer<OperateResult>() {
             @Override
             public void onChanged(OperateResult result) {
-                dismissLoginDialog();
+                BruceDialog.dismissProgressDialog();
                 if (result.getError() != null) {
                     Utils.toast(LoginActivity.this, result.getError().getErrorMsg());
                     loginIng = false;
@@ -146,7 +136,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    showLoginDialog(getString(R.string.login_ing));
+                    BruceDialog.showProgressDialog(LoginActivity.this, getString(R.string.login_ing));
                     String userName = usernameEditText.getText().toString();
                     String password = passwordEditText.getText().toString();
                     WarehouseKeeper.getInstance().setLoginName(userName);
@@ -162,7 +152,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (!loginIng) {
                     loginIng = true;
-                    showLoginDialog(getString(R.string.login_ing));
+                    BruceDialog.showProgressDialog(LoginActivity.this, getString(R.string.login_ing));
                     String userName = usernameEditText.getText().toString();
                     String password = passwordEditText.getText().toString();
                     WarehouseKeeper.getInstance().setLoginName(userName);
@@ -200,35 +190,17 @@ public class LoginActivity extends AppCompatActivity {
 
     /**
      * 欢迎登陆
+     *
      * @param name 用户名
      */
     private void updateUiWithUser(String name) {
         String welcome = getString(R.string.welcome) + name;
-        // TODO : initiate successful logged in experience
         Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
         //添加登陆用户
         LoginAutoMatch.getInstance().addLoginUser(WarehouseKeeper.getInstance().getLoginName(), WarehouseKeeper.getInstance().getLoginPassword());
         //跳转到主页面
         Intent intent = new Intent(this, MainActivity.class);
         startActivityForResult(intent, 1);
-    }
-
-    private void showLoginDialog(String loginMsg) {
-        if (loginDialog == null) {
-            loginDialog = new ProgressDialog(this);
-            loginDialog.setCancelable(false);
-            loginDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        }
-        loginDialog.setMessage(loginMsg);
-        if (!loginDialog.isShowing()) {
-            loginDialog.show();
-        }
-    }
-
-    private void dismissLoginDialog() {
-        if (loginDialog.isShowing()) {
-            loginDialog.dismiss();
-        }
     }
 
     @Override

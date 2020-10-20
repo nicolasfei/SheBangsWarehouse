@@ -55,11 +55,11 @@ public class OrderInformationAdapter extends BaseAdapter {
         String supplierIdValue = mContext.getString(R.string.supplier_id) + mContext.getString(R.string.colon_zh) + order.sId;
         holder.supplierId.setText(Html.fromHtml(supplierIdValue, Html.FROM_HTML_MODE_COMPACT));
 
-        String storeRoomNameValue = mContext.getString(R.string.storeRoomName) + mContext.getString(R.string.colon_zh) + order.storeRoomName;
-        holder.storeRoomName.setText(Html.fromHtml(storeRoomNameValue, Html.FROM_HTML_MODE_COMPACT));
-
-        String goodsClassNameValue = mContext.getString(R.string.goodsClassName) + mContext.getString(R.string.colon_zh) + order.goodsClassName;
-        holder.goodsClassName.setText(Html.fromHtml(goodsClassNameValue, Html.FROM_HTML_MODE_COMPACT));
+//        String storeRoomNameValue = mContext.getString(R.string.storeRoomName) + mContext.getString(R.string.colon_zh) + order.storeRoomName;
+//        holder.storeRoomName.setText(Html.fromHtml(storeRoomNameValue, Html.FROM_HTML_MODE_COMPACT));
+//
+//        String goodsClassNameValue = mContext.getString(R.string.goodsClassName) + mContext.getString(R.string.colon_zh) + order.goodsClassName;
+//        holder.goodsClassName.setText(Html.fromHtml(goodsClassNameValue, Html.FROM_HTML_MODE_COMPACT));
 
         String fIdValue = mContext.getString(R.string.branchName) + mContext.getString(R.string.colon_zh) + "<font color=\"black\"><big>" + order.fId + "</big></font>";
         holder.fId.setText(Html.fromHtml(fIdValue, Html.FROM_HTML_MODE_COMPACT));
@@ -67,14 +67,14 @@ public class OrderInformationAdapter extends BaseAdapter {
         String goodsIdValue = mContext.getString(R.string.new_goods_code1) + mContext.getString(R.string.colon_zh) + order.goodsId;
         holder.goodsId.setText(Html.fromHtml(goodsIdValue, Html.FROM_HTML_MODE_COMPACT));
 
-        String oldGoodsIdValue = mContext.getString(R.string.old_goods_code1) + mContext.getString(R.string.colon_zh) + order.oldGoodsId;
-        holder.oldGoodsId.setText(Html.fromHtml(oldGoodsIdValue, Html.FROM_HTML_MODE_COMPACT));
-
-        String inValidTimeValue = mContext.getString(R.string.invalidData) + mContext.getString(R.string.colon_zh) + order.inValidTime;
-        holder.inValidTime.setText(Html.fromHtml(inValidTimeValue, Html.FROM_HTML_MODE_COMPACT));
-
-        String sendAmountValue = mContext.getString(R.string.sendAmount) + mContext.getString(R.string.colon_zh) + order.sendAmount;
-        holder.sendAmount.setText(Html.fromHtml(sendAmountValue, Html.FROM_HTML_MODE_COMPACT));
+//        String oldGoodsIdValue = mContext.getString(R.string.old_goods_code1) + mContext.getString(R.string.colon_zh) + order.oldGoodsId;
+//        holder.oldGoodsId.setText(Html.fromHtml(oldGoodsIdValue, Html.FROM_HTML_MODE_COMPACT));
+//
+//        String inValidTimeValue = mContext.getString(R.string.invalidData) + mContext.getString(R.string.colon_zh) + order.inValidTime;
+//        holder.inValidTime.setText(Html.fromHtml(inValidTimeValue, Html.FROM_HTML_MODE_COMPACT));
+//
+//        String sendAmountValue = mContext.getString(R.string.sendAmount) + mContext.getString(R.string.colon_zh) + order.sendAmount;
+//        holder.sendAmount.setText(Html.fromHtml(sendAmountValue, Html.FROM_HTML_MODE_COMPACT));
 
         if (order.isExWarehouseScan) {
             convertView.setBackgroundColor(Color.GREEN);
@@ -97,15 +97,15 @@ public class OrderInformationAdapter extends BaseAdapter {
         private TextView sendAmount;
 
         private ViewHolder(View root) {
-            this.photo = root.findViewById(R.id.photo);
+//            this.photo = root.findViewById(R.id.photo);
             this.supplierId = root.findViewById(R.id.supplierId);
-            this.storeRoomName = root.findViewById(R.id.storeRoomName);
-            this.goodsClassName = root.findViewById(R.id.goodsClassName);
-            this.oldGoodsId = root.findViewById(R.id.oldGoodsId);
-            this.sendAmount = root.findViewById(R.id.sendAmount);
+//            this.storeRoomName = root.findViewById(R.id.storeRoomName);
+//            this.goodsClassName = root.findViewById(R.id.goodsClassName);
+//            this.oldGoodsId = root.findViewById(R.id.oldGoodsId);
+//            this.sendAmount = root.findViewById(R.id.sendAmount);
             this.goodsId = root.findViewById(R.id.goodsId);
             this.fId = root.findViewById(R.id.fId);
-            this.inValidTime = root.findViewById(R.id.inValidTime);
+//            this.inValidTime = root.findViewById(R.id.inValidTime);
         }
     }
 }

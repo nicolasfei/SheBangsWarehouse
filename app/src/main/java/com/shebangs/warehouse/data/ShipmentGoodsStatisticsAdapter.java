@@ -63,7 +63,7 @@ public class ShipmentGoodsStatisticsAdapter extends BaseAdapter {
 
         String statisticValue = String.valueOf(statistic.statistic);
         holder.statistic.setText(Html.fromHtml(statisticValue, Html.FROM_HTML_MODE_COMPACT));
-        if (statistic.toBeScanned) {
+        if (statistic.toBeScanned) {        //订单待扫描
             holder.statistic.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -77,7 +77,7 @@ public class ShipmentGoodsStatisticsAdapter extends BaseAdapter {
             });
             holder.statistic.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, mContext.getDrawable(R.drawable.ic_right_arrow), null);
             convertView.setBackgroundColor(Color.RED);
-        } else {
+        } else {                        //订单已经扫描
             holder.statistic.setOnClickListener(null);
             holder.statistic.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, null, null);
             convertView.setBackgroundColor(Color.GREEN);

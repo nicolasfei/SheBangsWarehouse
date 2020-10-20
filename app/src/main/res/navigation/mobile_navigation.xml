@@ -16,4 +16,11 @@
         android:name="com.shebangs.warehouse.ui.set.SetFragment"
         android:label="@string/title_set"
         tools:layout="@layout/fragment_set" />
+
+    <fragment
+        android:id="@+id/navigation_my"
+        android:name="com.shebangs.warehouse.ui.my.MyFragment"
+        android:label="@string/title_sys_management"
+        tools:layout="@layout/fragment_my" >
+    </fragment>
 </navigation>

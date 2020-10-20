@@ -3,24 +3,20 @@ package com.shebangs.warehouse;
 import android.content.DialogInterface;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.nicolas.printerlibraryforufovo.PrinterManager;
 import com.nicolas.toollibrary.AppActivityManager;
 import com.nicolas.toollibrary.HttpHandler;
 import com.nicolas.toollibrary.Utils;
+import com.nicolas.toollibrary.VibratorUtil;
 import com.nicolas.toollibrary.imageload.ImageLoadClass;
 import com.shebangs.warehouse.app.WarehouseApp;
-import com.shebangs.warehouse.component.ReceiveBillView;
 import com.shebangs.warehouse.serverInterface.CommandResponse;
 import com.shebangs.warehouse.serverInterface.CommandTypeEnum;
 import com.shebangs.warehouse.serverInterface.CommandVo;
 import com.shebangs.warehouse.serverInterface.Invoker;
 import com.shebangs.warehouse.serverInterface.login.LoginInterface;
-import com.shebangs.warehouse.ui.receipt.ReceiptVoucher;
-import com.shebangs.warehouse.ui.receipt.WarehouseReceiptActivity;
 import com.shebangs.warehouse.warehouse.WarehouseKeeper;
 
 import androidx.appcompat.app.AlertDialog;
@@ -42,9 +38,8 @@ public class MainActivity extends AppCompatActivity {
         AppActivityManager.getInstance().addActivity(this);
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_home, R.id.navigation_set)
+                R.id.navigation_home, R.id.navigation_set, R.id.navigation_my)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
@@ -52,39 +47,16 @@ public class MainActivity extends AppCompatActivity {
 
         //--------------初始化全局类-------------------//
         //开启打印机连接任务
-        PrinterManager.getInstance().setLinkDeviceModel("Printer_F6E4");
+        PrinterManager.getInstance().setLinkDeviceModel(WarehouseKeeper.getInstance().getOnDutyWarehouse().name);       //设置打印机连接设备名
         PrinterManager.getInstance().init(WarehouseApp.getInstance());
         //开启SupplierKeeper定时查询任务
         WarehouseKeeper.getInstance().startTimerTask();
+        //开启语音，震动提示服务
+        VibratorUtil.getInstance().init(WarehouseApp.getInstance());
         //初始化url图片缓存
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = 2;
         ImageLoadClass.getInstance().init(BitmapFactory.decodeResource(getResources(), R.mipmap.ico_big_decolor, options));
-
-        //界面
-        Button button2 = findViewById(R.id.button2);
-        button2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new android.app.AlertDialog.Builder(MainActivity.this)
-                        .setTitle(R.string.receive_print_title)
-                        .setMessage(R.string.receive_print)
-                        .setView(new ReceiveBillView(MainActivity.this, new ReceiptVoucher()))
-                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-//                                printReceiveBill();
-                            }
-                        })
-                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-//                                submitDataAndUpdate();
-                            }
-                        })
-                        .create().show();
-            }
-        });
     }
 
     @Override
@@ -144,7 +116,8 @@ public class MainActivity extends AppCompatActivity {
         PrinterManager.getInstance().unManager();
         //释放
         ImageLoadClass.getInstance().release();
+        //关闭语音，震动提示服务
+        VibratorUtil.getInstance().shutdown();
         super.onDestroy();
     }
-
 }

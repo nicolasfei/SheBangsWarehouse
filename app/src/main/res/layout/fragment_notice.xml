@@ -17,7 +17,7 @@
     <TextView
         android:id="@+id/notice"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="5dp"
         android:layout_marginEnd="5dp"
         android:drawableStart="@drawable/ic_notice_zh"

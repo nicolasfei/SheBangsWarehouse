@@ -41,6 +41,8 @@ public class WarehouseKeeper {
 
 
     private WarehouseKeeper() {
+        onDutyStaff = new WarehouseStaff();
+        onDutyWarehouse = new StorehouseInformation();
         this.warehouses = new ArrayList<>();
         this.branchList = new ArrayList<>();
         this.branchCodeList = new ArrayList<>();
@@ -118,10 +120,11 @@ public class WarehouseKeeper {
      * @throws JSONException JSONException
      */
     public void setWarehouseInformation(String data, String jsonData) throws JSONException {
+        this.warehouses.clear();
         JSONArray array = new JSONArray(data);
         for (int i = 0; i < array.length(); i++) {
             StorehouseInformation house = new StorehouseInformation(array.getString(i));
-            if (house.pId.compareTo("1")>0) {
+            if (house.pId.compareTo("1") > 0) {
                 this.warehouses.add(house);
             }
 
@@ -173,6 +176,15 @@ public class WarehouseKeeper {
      */
     public void setOnDutyStaff(String json) throws JSONException {
         this.onDutyStaff = new WarehouseStaff(json);
+    }
+
+    /**
+     * 库房人员信息
+     *
+     * @return 人员信息
+     */
+    public WarehouseStaff getOnDutyStaff() {
+        return onDutyStaff;
     }
 
     /**
@@ -233,8 +245,8 @@ public class WarehouseKeeper {
     /**
      * 根据分店Fid获取分店ID
      *
-     * @param branchFID
-     * @return
+     * @param branchFID branchFID
+     * @return 分店ID
      */
     public String getBranchID(String branchFID) {
         for (BranchInformation branch : branchList) {

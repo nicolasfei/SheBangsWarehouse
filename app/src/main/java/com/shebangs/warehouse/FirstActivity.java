@@ -6,17 +6,19 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.nicolas.toollibrary.Tool;
+import com.shebangs.warehouse.app.WarehouseApp;
 import com.shebangs.warehouse.ui.login.LoginActivity;
+
+import java.io.File;
 
 public class FirstActivity extends AppCompatActivity {
 
-    private static final String TAG = "FirstActivity";
     private final int REQUEST_CODE = 200;
 
     private static String[] permission = {
@@ -30,7 +32,6 @@ public class FirstActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate: " + this.getTaskId());
         check();
 //        if (SheBangsApp.getInstance().isHaveActivity()) {
 //            this.finish();
@@ -74,7 +75,6 @@ public class FirstActivity extends AppCompatActivity {
 //            if (permissions[0].equals(Manifest.permission.WRITE_EXTERNAL_STORAGE) && grantResults[0]
 //                    == PackageManager.PERMISSION_GRANTED) {
             for (int i = 0; i < permissions.length; i++) {
-                Log.d(TAG, "onRequestPermissionsResult: grantResults--" + i + " :" + grantResults[i]);
                 isOK &= (grantResults[i] == PackageManager.PERMISSION_GRANTED);
             }
             if (isOK) {
@@ -102,7 +102,14 @@ public class FirstActivity extends AppCompatActivity {
     }
 
     private void jumpToLoginActivity() {
-        Intent intent = new Intent(this, LoginActivity.class);
+        //增加删除apk下载文件
+        File file = new File(WarehouseApp.getInstance().getApkSavePath());
+        if (file.exists()) {
+            if (file.delete()) {
+                Tool.longPrint("delete apk failed!");
+            }
+        }
+        Intent intent = new Intent(this, VersionCheckActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
         this.finish();

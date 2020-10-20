@@ -9,4 +9,8 @@ public abstract class ManagerInterface extends AbstractInterface {
 //    public final static String GetWarehouseKeeperList = AbstractInterface.COMMAND_URL + "api/Login/GetWarehouseKeeperList";
     //分店信息接口
     public final static String GetBranchInformation = AbstractInterface.COMMAND_URL + "StoreRoom/Branch";
+    //库员密码修改接口
+    public final static String StaffPassWordModify = AbstractInterface.COMMAND_URL + "StoreRoom/EditPassword";
+    //app更新
+    public final static String VersionCheck = "http://updatestoreroom.scdawn.com/v.json";
 }

@@ -7,9 +7,9 @@ android {
     defaultConfig {
         applicationId "com.shebangs.warehouse"
         minSdkVersion 25
-        targetSdkVersion 26
+        targetSdkVersion 29
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.4"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -21,11 +21,18 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
+            //移除无用的resource文件
+            //shrinkResources true
+            //是否进行zipAlign优化
+            //zipAlignEnabled false
+            //是否进行混淆
+            minifyEnabled false
+            //签名配置
+            //signingConfig signingConfigs.debug
+            //加载混淆文件
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
 }
 
 dependencies {

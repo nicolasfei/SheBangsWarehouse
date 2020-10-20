@@ -11,4 +11,8 @@
         android:icon="@drawable/ic_set"
         android:title="@string/title_set" />
 
+    <item
+        android:id="@+id/navigation_my"
+        android:icon="@drawable/ic_my"
+        android:title="@string/title_sys_management" />
 </menu>

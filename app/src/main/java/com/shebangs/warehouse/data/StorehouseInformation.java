@@ -17,11 +17,15 @@ import java.io.Serializable;
  * "valid": "启用"
  */
 public class StorehouseInformation extends TreeNode implements Serializable {
-    public String code;     //"B1201",
-    public String remark;   //"金牛之心12楼1号",
+    public String code = "";     //"B1201",
+    public String remark = "";   //"金牛之心12楼1号",
 
-    public StorehouseInformation(String json){
+    public StorehouseInformation(String json) {
         super(json);
+    }
+
+    public StorehouseInformation() {
+        super("");
     }
 
     @Override

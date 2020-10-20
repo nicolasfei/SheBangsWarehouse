@@ -17,15 +17,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.donkingliang.groupedadapter.adapter.GroupedRecyclerViewAdapter;
 import com.donkingliang.groupedadapter.holder.BaseViewHolder;
 import com.nicolas.printerlibraryforufovo.PrinterDeviceGroup;
-import com.nicolas.printerlibraryforufovo.PrinterManager;
 import com.nicolas.toollibrary.Utils;
 import com.shebangs.warehouse.BaseActivity;
 import com.shebangs.warehouse.R;
 import com.shebangs.warehouse.common.OperateResult;
 import com.shebangs.warehouse.common.PrinterListAdapter;
-import com.shebangs.warehouse.ui.receipt.ReceiptVoucher;
-
-import java.io.IOException;
 
 public class PrinterActivity extends BaseActivity {
 
@@ -56,18 +52,6 @@ public class PrinterActivity extends BaseActivity {
             }
         });
 
-        Button button = findViewById(R.id.button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    PrinterManager.getInstance().printBill(ReceiptVoucher.getTestData().getPrintBill());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
         //适配器
         listAdapter = new PrinterListAdapter(this);
         listAdapter.setPrinterDeviceGroup(printerViewModel.getPrinterDeviceGroups());
@@ -93,9 +77,7 @@ public class PrinterActivity extends BaseActivity {
         mRecyclerView.setAdapter(listAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        /**
-         * 打印机状态监听
-         */
+        //打印机状态监听
         printerViewModel.getPrinterStatusResult().observe(this, new Observer<OperateResult>() {
             @Override
             public void onChanged(OperateResult queryResult) {
@@ -112,9 +94,7 @@ public class PrinterActivity extends BaseActivity {
             }
         });
 
-        /**
-         * 打印机组状态更新
-         */
+        //打印机组状态更新
         printerViewModel.getPrinterGroupStatusResult().observe(this, new Observer<OperateResult>() {
             @Override
             public void onChanged(OperateResult operateResult) {

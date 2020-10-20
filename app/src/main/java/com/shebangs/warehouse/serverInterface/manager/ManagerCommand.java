@@ -15,7 +15,12 @@ public class ManagerCommand extends Command {
     @Override
     protected void buildDutyChain() {
         ManagerInterface warehouseInfo = new WarehouseInformation();
-        warehouseInfo.setNextHandler(null);
+        ManagerInterface passwordModify = new StaffPassWordModify();
+        ManagerInterface versionCheck = new VersionCheck();
+
+        warehouseInfo.setNextHandler(passwordModify);
+        passwordModify.setNextHandler(versionCheck);
+        versionCheck.setNextHandler(null);
 
         super.firstNode = warehouseInfo;
     }

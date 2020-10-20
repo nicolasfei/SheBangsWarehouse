@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">库房管理</string>
+    <string name="app_name">怦然心动库房版</string>
     <string name="title_home">首页</string>
     <string name="title_set">设置</string>
 
@@ -9,6 +9,7 @@
     <string name="activity_receipt_statistics">库房收货统计</string>
     <string name="activity_shipment">库房发货</string>
     <string name="activity_shipment_statistics">库房发货统计</string>
+    <string name="activity_version_check">版本检测</string>
 
     <!--登陆-->
     <string name="login_name">用户名</string>
@@ -192,6 +193,7 @@
     <string name="scaning">扫描中...</string>
     <string name="usb_devices_list">USB设备列表</string>
     <string name="none_usb_device">没有USB设备</string>
+    <string name="printer_set">打印机设置</string>
 
     <string-array name="baudrate">
         <item>4800</item>
@@ -305,6 +307,46 @@
     <string name="notScanne">未扫描</string>
     <string name="scanned">已扫描</string>
     <string name="sureToSetThisStatisticsToScannedAll">确定要将此供应商的所有订单设置为已扫描么?</string>
-    <string name="failed">错误</string>
+    <string name="failed">失败</string>
     <string name="hit">提示</string>
+    <string name="getBillError">获取小票信息失败，当前无打印的小票.</string>
+    <string name="previous_bill_query">小票信息查询中...</string>
+    <!--email-->
+    <string name="emailForm">fshq_test@163.com</string>
+    <string name="formPassword">ZIPGXOJDAEZVOJBY</string>
+    <string name="emailTo">fshq_debug@163.com</string>
+    <string name="emailContentHead">She bangs warehouse</string>
+    <!--用户信息-->
+    <string name="title_sys_management">我的</string>
+    <string name="name">姓名</string>
+    <string name="phone">电话</string>
+    <string name="userName">用户名</string>
+    <string name="password">密码</string>
+    <string name="inputNull">输入为空</string>
+    <string name="oldPassError">旧密码与原始密码不符</string>
+    <string name="newPassError">两次新密码输入不符</string>
+    <string name="modifying">密码修改中...</string>
+    <string name="modifyPassSuccess">密码修改成功</string>
+    <string name="activity_user">用户管理</string>
+    <string name="nav_about">系统信息</string>
+    <string name="receipt_not_submit">收货还有未提交的数据，切换库房会清空所有数据，确定要切换码?</string>
+    <string name="receipt">收货</string>
+    <string name="submit_sure">确定提交数据吗？</string>
+    <string name="shipment">发货</string>
+    <string name="maxBackGoods">单次提交返货数量不能超过50个</string>
+    <string name="print_bill_success">打印小票成功</string>
+    <string name="isHavDataNotProcessed">还有未处理的数据,确定要退出吗?</string>
+    <string name="shipmentHasNoDealData">还有未处理的数据不能切换库房，如要切换，请先清空数据!</string>
+    <string name="isClearData">还有未处理的数据，确定要清空吗?</string>
+    <string name="switchWillClearData">还有未处理的数据，切换库房将导致数据被清空，确定要切换吗?</string>
+
+    <!--版本控制-->
+    <string name="version_check">版本检测中...</string>
+    <string name="newVersionDowning">新版本App下载中...</string>
+    <string name="downApkFailed">下载Apk失败...</string>
+    <string name="newVersionChecking">App版本检测中...</string>
+    <string name="app_will_shutdown">版本检测失败，请检测网络连接，app将退出!</string>
+    <string name="localCheckAppVFailed">本地检测App版本失败</string>
+    <string name="remoteCheckAppVFailed">获取App版本失败，请检查网络连接</string>
+    <string name="submitting">数据提交中...</string>
 </resources>
