@@ -307,6 +307,7 @@
     <string name="notScanne">未扫描</string>
     <string name="scanned">已扫描</string>
     <string name="sureToSetThisStatisticsToScannedAll">确定要将此供应商的所有订单设置为已扫描么?</string>
+    <string name="sureToSetThisStatisticsToScanAll">确定要将此供应商的所有订单设置为待扫描么?</string>
     <string name="failed">失败</string>
     <string name="hit">提示</string>
     <string name="getBillError">获取小票信息失败，当前无打印的小票.</string>
@@ -337,7 +338,7 @@
     <string name="print_bill_success">打印小票成功</string>
     <string name="isHavDataNotProcessed">还有未处理的数据,确定要退出吗?</string>
     <string name="shipmentHasNoDealData">还有未处理的数据不能切换库房，如要切换，请先清空数据!</string>
-    <string name="isClearData">还有未处理的数据，确定要清空吗?</string>
+    <string name="isClearData">此操作会清空所有数据，如有还未处理的数据，请确认是否要继续处理，确定要清空吗?</string>
     <string name="switchWillClearData">还有未处理的数据，切换库房将导致数据被清空，确定要切换吗?</string>
 
     <!--版本控制-->
@@ -349,4 +350,8 @@
     <string name="localCheckAppVFailed">本地检测App版本失败</string>
     <string name="remoteCheckAppVFailed">获取App版本失败，请检查网络连接</string>
     <string name="submitting">数据提交中...</string>
+    <string name="notScan">未扫</string>
+    <string name="scanned1">已扫</string>
+    <string name="setThisStatisticsToScannedAll">确定要将编号为</string>
+    <string name="sureToSet">的供应商的所有订单设置为已扫描吗?</string>
 </resources>

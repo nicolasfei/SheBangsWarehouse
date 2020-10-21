@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.Html;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -210,6 +211,8 @@ public class BackActivity extends BaseActivity implements View.OnClickListener {
                 }
             }
         });
+
+        updateBusinessInformation();
     }
 
     @Override
@@ -395,7 +398,7 @@ public class BackActivity extends BaseActivity implements View.OnClickListener {
         //更新商品信息
         this.adapter.notifyDataSetChanged();
         //合计更新
-        String value = getString(R.string.total) + getString(R.string.colon_zh) + this.viewModel.getTotal();
+        String value = String.valueOf(this.viewModel.getTotal());
         this.total.setText(value);
         if (this.viewModel.getTotal() > 0 && !this.viewModel.isHaveInvalidGoods()) {
             if (!this.submit.isClickable()) {

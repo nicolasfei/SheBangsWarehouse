@@ -78,8 +78,21 @@ public class ShipmentGoodsStatisticsAdapter extends BaseAdapter {
             holder.statistic.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, mContext.getDrawable(R.drawable.ic_right_arrow), null);
             convertView.setBackgroundColor(Color.RED);
         } else {                        //订单已经扫描
-            holder.statistic.setOnClickListener(null);
-            holder.statistic.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, null, null);
+            holder.statistic.setOnClickListener(null
+//                    new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    if (System.currentTimeMillis() - lastClickTime > INTERVAL_TIME) {
+//                        if (listener != null) {
+//                            listener.onScannedClick(position);
+//                        }
+//                        lastClickTime = System.currentTimeMillis();
+//                    }
+//                }
+//            }
+            );
+            holder.statistic.setCompoundDrawablesRelativeWithIntrinsicBounds(/*mContext.getDrawable(R.drawable.ic_lift_arrow)*/null,
+                    null, null, null);
             convertView.setBackgroundColor(Color.GREEN);
         }
         return convertView;
@@ -97,5 +110,7 @@ public class ShipmentGoodsStatisticsAdapter extends BaseAdapter {
 
     public interface OnShipmentGoodsStatisticsClickListener {
         void onNotScannedClick(int position);
+
+        void onScannedClick(int position);
     }
 }

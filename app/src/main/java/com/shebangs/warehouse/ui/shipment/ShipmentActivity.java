@@ -38,6 +38,7 @@ import com.shebangs.warehouse.R;
 import com.shebangs.warehouse.app.WarehouseApp;
 import com.shebangs.warehouse.common.InputFormState;
 import com.shebangs.warehouse.common.OperateResult;
+import com.shebangs.warehouse.data.ShipmentGoodsStatistics;
 import com.shebangs.warehouse.data.ShipmentGoodsStatisticsAdapter;
 import com.shebangs.warehouse.warehouse.WarehouseKeeper;
 
@@ -46,7 +47,7 @@ public class ShipmentActivity extends BaseActivity implements View.OnClickListen
     private TextView branch;
     private EditText codeEdit;
     private Scanner scanner;                //扫描头
-    private TextView total;
+    private TextView total, scan, scanned;
     private Button submit;
 
     private ShipmentViewModel viewModel;
@@ -122,6 +123,8 @@ public class ShipmentActivity extends BaseActivity implements View.OnClickListen
         });
         //合计
         this.total = findViewById(R.id.total);
+        this.scanned = findViewById(R.id.scanned);
+        this.scan = findViewById(R.id.scan);
 
         //提交
         this.submit = findClickView(R.id.submit);
@@ -134,8 +137,10 @@ public class ShipmentActivity extends BaseActivity implements View.OnClickListen
         this.adapter.setOnShipmentGoodsStatisticsClickListener(new ShipmentGoodsStatisticsAdapter.OnShipmentGoodsStatisticsClickListener() {
             @Override
             public void onNotScannedClick(int position) {       //某个供应商的所有订单被手动扫描
+                ShipmentGoodsStatistics statistics = viewModel.getScanStatistics().get(position);
+                String hint = getString(R.string.setThisStatisticsToScannedAll) + "（" + statistics.supplier + "）" + getString(R.string.sureToSet);
                 BruceDialog.showAlertDialog(ShipmentActivity.this, getString(R.string.hint),
-                        getString(R.string.sureToSetThisStatisticsToScannedAll), new BruceDialog.OnAlertDialogListener() {
+                        hint, new BruceDialog.OnAlertDialogListener() {
                             @Override
                             public void onSelect(boolean confirm) {
                                 if (confirm) {
@@ -143,6 +148,11 @@ public class ShipmentActivity extends BaseActivity implements View.OnClickListen
                                 }
                             }
                         });
+            }
+
+            @Override
+            public void onScannedClick(int position) {
+
             }
         });
         this.pullRefreshListView1.setAdapter(this.adapter);
@@ -153,6 +163,24 @@ public class ShipmentActivity extends BaseActivity implements View.OnClickListen
         this.pullRefreshListView2 = findViewById(R.id.swipeMenuListView2);
         //适配器
         this.adapter2 = new ShipmentGoodsStatisticsAdapter(this, viewModel.getScannedStatistics());
+        this.adapter2.setOnShipmentGoodsStatisticsClickListener(new ShipmentGoodsStatisticsAdapter.OnShipmentGoodsStatisticsClickListener() {
+            @Override
+            public void onNotScannedClick(int position) {       //某个供应商的所有订单被手动设置为待扫描
+            }
+
+            @Override
+            public void onScannedClick(int position) {
+                BruceDialog.showAlertDialog(ShipmentActivity.this, getString(R.string.hint),
+                        getString(R.string.sureToSetThisStatisticsToScanAll), new BruceDialog.OnAlertDialogListener() {
+                            @Override
+                            public void onSelect(boolean confirm) {
+                                if (confirm) {
+                                    viewModel.setShipmentStatisticsAllNotScan(position);
+                                }
+                            }
+                        });
+            }
+        });
         this.pullRefreshListView2.setAdapter(this.adapter2);
         this.pullRefreshListView2.disablePullRefresh();
         this.pullRefreshListView2.disablePushLoadMore();
@@ -224,6 +252,7 @@ public class ShipmentActivity extends BaseActivity implements View.OnClickListen
                     updateBusinessInformation();
                 }
                 if (operateResult.getError() != null) {
+                    VibratorUtil.getInstance().showWarning();
                     BruceDialog.showPromptDialog(ShipmentActivity.this, operateResult.getError().getErrorMsg());
                 }
 //                if (pullRefreshListView1.isPullToRefreshing()) {
@@ -235,6 +264,7 @@ public class ShipmentActivity extends BaseActivity implements View.OnClickListen
         });
 
         updateWarehouseName();
+        updateBusinessInformation();
     }
 
     @Override
@@ -250,17 +280,16 @@ public class ShipmentActivity extends BaseActivity implements View.OnClickListen
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_clear:
-                if (viewModel.isHavDataNotProcessed()) {
-                    BruceDialog.showAlertDialog(this, getString(R.string.warning), getString(R.string.isClearData),
-                            new BruceDialog.OnAlertDialogListener() {
-                                @Override
-                                public void onSelect(boolean confirm) {
-                                    if (confirm) {
-                                        clearData();
-                                    }
+                BruceDialog.showAlertDialog(this, getString(R.string.warning), getString(R.string.isClearData),
+                        new BruceDialog.OnAlertDialogListener() {
+                            @Override
+                            public void onSelect(boolean confirm) {
+                                if (confirm) {
+                                    clearData();
+                                    clearBranchID();
                                 }
-                            });
-                }
+                            }
+                        });
                 break;
             case android.R.id.home:
                 if (this.viewModel.isHavDataNotProcessed()) {
@@ -289,6 +318,14 @@ public class ShipmentActivity extends BaseActivity implements View.OnClickListen
     private void clearData() {
         viewModel.clearData();
         updateBusinessInformation();
+    }
+
+    /**
+     * 清空选择的分店
+     */
+    private void clearBranchID() {
+        choiceBranchCode = "";        //清空分店编号
+        updateBranchID(choiceBranchCode);
     }
 
 
@@ -472,13 +509,9 @@ public class ShipmentActivity extends BaseActivity implements View.OnClickListen
         this.adapter.notifyDataSetChanged();
         this.adapter2.notifyDataSetChanged();
         //合计更新
-        String value = getString(R.string.totalOrder);
-        if (this.viewModel.getTotal() > 0) {
-            value += ":" + this.viewModel.getTotal() + "\u3000" +
-                    "<font color=\"green\">" + getString(R.string.scaned) + getString(R.string.colon_zh) + this.viewModel.getScannedTotal() + "\u3000" + "</font>" +
-                    "<font color=\"red\">" + getString(R.string.unScan) + getString(R.string.colon_zh) + (this.viewModel.getNotScanTotal()) + "</font>";
-        }
-        this.total.setText(Html.fromHtml(value, Html.FROM_HTML_MODE_COMPACT));
+        this.total.setText(String.valueOf(this.viewModel.getTotal()));
+        this.scanned.setText(String.valueOf(this.viewModel.getScannedTotal()));
+        this.scan.setText(String.valueOf(this.viewModel.getNotScanTotal()));
         if (this.viewModel.getScannedTotal() > 0) {        //有扫描的订单就可以提交
             if (!this.submit.isClickable()) {
                 this.submit.setClickable(true);

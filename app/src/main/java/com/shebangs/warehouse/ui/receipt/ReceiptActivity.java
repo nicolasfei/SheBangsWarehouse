@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.Html;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.Gravity;
@@ -275,6 +276,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         });
 
         updateWarehouseName();
+        updateBusinessInformation();
     }
 
     /**
@@ -649,7 +651,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         //更新商品信息
         this.adapter.notifyDataSetChanged();
         //合计更新
-        String value = getString(R.string.totalOrder) + ":" + this.viewModel.getTotal();
+        String value = String.valueOf(this.viewModel.getTotal());
         this.total.setText(value);
         if (this.viewModel.getTotal() > 0 && !this.viewModel.isHaveInvalidGoods()) {
             if (!this.submit.isClickable()) {

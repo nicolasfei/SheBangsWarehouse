@@ -175,7 +175,7 @@ public class LoginActivity extends AppCompatActivity {
      * 用户选择当前库房
      */
     private void choiceWarehouse() {
-        BruceDialog.showSingleChoiceDialog(R.string.warehouse_choice, this, WarehouseKeeper.getInstance().getWarehouseInformationList(), new BruceDialog.OnChoiceItemListener() {
+        BruceDialog.showSingleChoiceDialog(R.string.warehouse_choice, this, WarehouseKeeper.getInstance().getWarehouseInformationList(), false, new BruceDialog.OnChoiceItemListener() {
             @Override
             public void onChoiceItem(String itemName) {
                 if (TextUtils.isEmpty(itemName)) {

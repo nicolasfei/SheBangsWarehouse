@@ -64,64 +64,80 @@
     <View
         android:id="@+id/divider3"
         android:layout_width="0dp"
-        android:layout_height="@dimen/one_layer_nesting_margin"
+        android:layout_height="@dimen/three_layer_nesting_margin"
         android:background="?android:attr/listDivider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/codeEdit" />
 
-    <com.nicolas.componentlibrary.pullrefresh.PullRefreshListView
-        android:id="@+id/swipeMenuListView1"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:headerDividersEnabled="true"
-        android:stackFromBottom="false"
-        android:background="@color/list_background"
-        android:transcriptMode="normal"
-        app:layout_constraintBottom_toTopOf="@+id/divider4"
+    <TextView
+        android:id="@+id/totalName"
+        style="@style/TextViewStyle"
+        android:gravity="start|bottom"
+        android:paddingBottom="15dp"
+        android:text="@string/total"
+        android:textSize="15sp"
+        app:layout_constraintHeight_percent="0.1"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintWidth_percent="0.5"
-        app:layout_constraintTop_toBottomOf="@+id/divider3" />
-
-    <View
-        android:id="@+id/divider41"
-        android:layout_width="1dp"
-        android:layout_height="@dimen/three_layer_nesting_margin"
-        android:background="?android:attr/listDivider"
-        app:layout_constraintStart_toEndOf="@+id/swipeMenuListView1"
         app:layout_constraintTop_toBottomOf="@+id/divider3"
-        app:layout_constraintBottom_toTopOf="@+id/divider4" />
-
-    <com.nicolas.componentlibrary.pullrefresh.PullRefreshListView
-        android:id="@+id/swipeMenuListView2"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:headerDividersEnabled="true"
-        android:stackFromBottom="false"
-        android:background="@color/list_background"
-        android:transcriptMode="normal"
-        app:layout_constraintWidth_percent="0.5"
-        app:layout_constraintBottom_toTopOf="@+id/divider4"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/divider41"
-        app:layout_constraintTop_toBottomOf="@+id/divider3" />
-
-    <View
-        android:id="@+id/divider4"
-        android:layout_width="0dp"
-        android:layout_height="@dimen/three_layer_nesting_margin"
-        android:background="?android:attr/listDivider"
-        app:layout_constraintBottom_toTopOf="@+id/total"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintWidth_percent="0.1" />
 
     <TextView
         android:id="@+id/total"
         style="@style/TextViewStyle"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHeight_percent="0.07"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintWidth_percent="0.7" />
+        android:textColor="@android:color/black"
+        android:textSize="30sp"
+        android:text="999"
+        app:layout_constraintHeight_percent="0.1"
+        app:layout_constraintStart_toEndOf="@+id/totalName"
+        app:layout_constraintTop_toBottomOf="@+id/divider3"
+        app:layout_constraintWidth_percent="0.17" />
+
+    <TextView
+        android:id="@+id/scannedName"
+        style="@style/TextViewStyle"
+        android:textColor="@android:color/holo_green_light"
+        android:textSize="15sp"
+        android:gravity="start|bottom"
+        android:paddingBottom="15dp"
+        android:text="@string/scanned1"
+        app:layout_constraintHeight_percent="0.1"
+        app:layout_constraintStart_toEndOf="@+id/total"
+        app:layout_constraintTop_toBottomOf="@+id/divider3"
+        app:layout_constraintWidth_percent="0.1" />
+
+    <TextView
+        android:id="@+id/scanned"
+        style="@style/TextViewStyle"
+        android:textColor="@android:color/holo_green_light"
+        android:textSize="30sp"
+        app:layout_constraintHeight_percent="0.1"
+        app:layout_constraintStart_toEndOf="@+id/scannedName"
+        app:layout_constraintTop_toBottomOf="@+id/divider3"
+        app:layout_constraintWidth_percent="0.17" />
+
+    <TextView
+        android:id="@+id/scanName"
+        style="@style/TextViewStyle"
+        android:textColor="@android:color/holo_red_light"
+        android:textSize="15sp"
+        android:text="@string/notScan"
+        android:gravity="start|bottom"
+        android:paddingBottom="15dp"
+        app:layout_constraintHeight_percent="0.1"
+        app:layout_constraintStart_toEndOf="@+id/scanned"
+        app:layout_constraintTop_toBottomOf="@+id/divider3"
+        app:layout_constraintWidth_percent="0.1" />
+
+    <TextView
+        android:id="@+id/scan"
+        style="@style/TextViewStyle"
+        android:textColor="@android:color/holo_red_light"
+        android:textSize="30sp"
+        app:layout_constraintHeight_percent="0.1"
+        app:layout_constraintStart_toEndOf="@+id/scanName"
+        app:layout_constraintTop_toBottomOf="@+id/divider3"
+        app:layout_constraintWidth_percent="0.17" />
 
     <Button
         android:id="@+id/submit"
@@ -129,8 +145,53 @@
         android:layout_height="0dp"
         android:gravity="center"
         android:text="@string/submit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.1"
+        app:layout_constraintStart_toEndOf="@+id/scan"
+        app:layout_constraintTop_toBottomOf="@+id/divider3" />
+
+    <View
+        android:id="@+id/divider31"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/one_layer_nesting_margin"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/total" />
+
+    <com.nicolas.componentlibrary.pullrefresh.PullRefreshListView
+        android:id="@+id/swipeMenuListView1"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/list_background"
+        android:headerDividersEnabled="true"
+        android:stackFromBottom="false"
+        android:transcriptMode="normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider31"
+        app:layout_constraintWidth_percent="0.5" />
+
+    <View
+        android:id="@+id/divider4"
+        android:layout_width="1dp"
+        android:layout_height="@dimen/three_layer_nesting_margin"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/swipeMenuListView1"
+        app:layout_constraintTop_toBottomOf="@+id/divider31" />
+
+    <com.nicolas.componentlibrary.pullrefresh.PullRefreshListView
+        android:id="@+id/swipeMenuListView2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/list_background"
+        android:headerDividersEnabled="true"
+        android:stackFromBottom="false"
+        android:transcriptMode="normal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.07"
-        app:layout_constraintStart_toEndOf="@+id/total" />
+        app:layout_constraintStart_toEndOf="@+id/divider4"
+        app:layout_constraintTop_toBottomOf="@+id/divider31"
+        app:layout_constraintWidth_percent="0.5" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -47,13 +47,55 @@
         app:layout_constraintTop_toBottomOf="@+id/divider0" />
 
     <View
+        android:id="@+id/divider4"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/three_layer_nesting_margin"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintTop_toBottomOf="@+id/codeEdit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/totalName"
+        style="@style/TextViewStyle"
+        android:text="@string/total"
+        android:gravity="start|bottom"
+        android:paddingBottom="5dp"
+        android:textSize="20sp"
+        app:layout_constraintTop_toBottomOf="@+id/divider4"
+        app:layout_constraintHeight_percent="0.1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintWidth_percent="0.125" />
+
+    <TextView
+        android:id="@+id/total"
+        style="@style/TextViewStyle"
+        android:textColor="@android:color/holo_red_light"
+        android:textSize="50sp"
+        app:layout_constraintHeight_percent="0.1"
+        app:layout_constraintStart_toEndOf="@+id/totalName"
+        app:layout_constraintTop_toBottomOf="@+id/divider4"
+        app:layout_constraintWidth_percent="0.575" />
+
+    <Button
+        android:id="@+id/submit"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:text="@string/submit"
+        app:layout_constraintTop_toBottomOf="@+id/divider4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.1"
+        app:layout_constraintStart_toEndOf="@+id/total" />
+
+    <View
         android:id="@+id/divider3"
         android:layout_width="0dp"
         android:layout_height="@dimen/one_layer_nesting_margin"
         android:background="?android:attr/listDivider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/codeEdit" />
+        app:layout_constraintTop_toBottomOf="@+id/total" />
 
     <com.baoyz.swipemenulistview.SwipeMenuListView
         android:id="@+id/swipeMenuListView"
@@ -63,36 +105,8 @@
         android:headerDividersEnabled="true"
         android:stackFromBottom="true"
         android:transcriptMode="normal"
-        app:layout_constraintBottom_toTopOf="@+id/divider4"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/divider3" />
-
-    <View
-        android:id="@+id/divider4"
-        android:layout_width="0dp"
-        android:layout_height="@dimen/three_layer_nesting_margin"
-        android:background="?android:attr/listDivider"
-        app:layout_constraintBottom_toTopOf="@+id/total"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/total"
-        style="@style/TextViewStyle"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHeight_percent="0.07"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintWidth_percent="0.7" />
-
-    <Button
-        android:id="@+id/submit"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:gravity="center"
-        android:text="@string/submit"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.07"
-        app:layout_constraintStart_toEndOf="@+id/total" />
 </androidx.constraintlayout.widget.ConstraintLayout>

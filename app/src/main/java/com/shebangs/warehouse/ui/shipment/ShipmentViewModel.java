@@ -228,6 +228,22 @@ public class ShipmentViewModel extends ViewModel {
                         boolean isRepeatScan = false;
                         boolean isThisBranchId = false;
                         OrderInformation order = new OrderInformation(result.data);
+
+                        //检测是否是重复订单
+                        for (OrderInformation o : scannedBranchOrders) {
+                            if (o.id.equals(order.id)) {
+                                isRepeatScan = true;
+                                break;
+                            }
+                        }
+                        //重复订单直接返回
+                        if (isRepeatScan) {
+                            queryCodeInformationResult.setValue(new OperateResult(new OperateError(-1,
+                                    WarehouseApp.getInstance().getString(R.string.repeatOrder), null)));
+                            return;
+                        }
+
+                        //检测是否是本分店订单
                         for (int i = 0; i < branchOrders.size(); i++) {
                             OrderInformation item = branchOrders.get(i);
                             //在待扫描列表中找到了此订单
@@ -275,20 +291,6 @@ public class ShipmentViewModel extends ViewModel {
                             return;
                         }
 
-                        //检测是否是重复订单
-                        for (OrderInformation item : scannedBranchOrders) {
-                            if (item.id.equals(order.id)) {
-                                isRepeatScan = true;
-                                break;
-                            }
-                        }
-                        //重复订单直接返回
-                        if (isRepeatScan) {
-                            queryCodeInformationResult.setValue(new OperateResult(new OperateError(-1,
-                                    WarehouseApp.getInstance().getString(R.string.repeatOrder), null)));
-                            return;
-                        }
-
                         //扫描到新订单成功
                         queryCodeInformationResult.setValue(new OperateResult(new OperateInUserView(null)));
                     } else {
@@ -318,9 +320,8 @@ public class ShipmentViewModel extends ViewModel {
                             JSONArray array = new JSONArray(result.data);
                             //分店无需发货，直接返回
                             if (array.length() == 0) {
-                                Message msg = new Message();
-                                msg.obj = WarehouseApp.getInstance().getString(R.string.branch_not_delivery_required);
-                                queryDeliveryRequiredBranchGoodsListResult.setValue(new OperateResult(new OperateInUserView(msg)));
+                                queryDeliveryRequiredBranchGoodsListResult.setValue(new OperateResult(new OperateError(-1,
+                                        WarehouseApp.getInstance().getString(R.string.branch_not_delivery_required), null)));
                                 return;
                             }
                             //解析数据
@@ -346,9 +347,8 @@ public class ShipmentViewModel extends ViewModel {
                             queryDeliveryRequiredBranchGoodsListResult.setValue(new OperateResult(new OperateInUserView(null)));
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            Message msg = new Message();
-                            msg.obj = WarehouseApp.getInstance().getString(R.string.errorData);
-                            queryDeliveryRequiredBranchGoodsListResult.setValue(new OperateResult(new OperateInUserView(msg)));
+                            queryDeliveryRequiredBranchGoodsListResult.setValue(new OperateResult(new OperateError(-1,
+                                    WarehouseApp.getInstance().getString(R.string.errorData), null)));
                         }
                     }
                     break;
@@ -366,18 +366,16 @@ public class ShipmentViewModel extends ViewModel {
                             JSONArray array = new JSONArray(result.data);
                             //分店没有待发货的货
                             if (array.length() == 0) {
-                                Message msg = new Message();
-                                msg.obj = WarehouseApp.getInstance().getString(R.string.branch_not_delivery_required);
-                                queryDeliveryRequiredBranchGoodsListResult.setValue(new OperateResult(new OperateInUserView(msg)));
+                                queryDeliveryRequiredBranchGoodsListResult.setValue(new OperateResult(new OperateError(-1,
+                                        WarehouseApp.getInstance().getString(R.string.branch_not_delivery_required), null)));
                                 return;
                             }
                             //判断是否是本库房的待发货的分店
                             OrderInformation test = new OrderInformation(array.getString(0));
                             if (!test.storeRoomId.equals(WarehouseKeeper.getInstance().getOnDutyWarehouse().id)) {
                                 //此分店不属于本库房
-                                Message msg = new Message();
-                                msg.obj = WarehouseApp.getInstance().getString(R.string.branch_not_this_storeRoom);
-                                queryDeliveryRequiredBranchGoodsListResult.setValue(new OperateResult(new OperateInUserView(msg)));
+                                queryDeliveryRequiredBranchGoodsListResult.setValue(new OperateResult(new OperateError(-1,
+                                        WarehouseApp.getInstance().getString(R.string.branch_not_this_storeRoom), null)));
                                 return;
                             }
                             currentDeliveryRequiredBranchID = test.branchId;      //记录分店ID，用于扫码
@@ -407,9 +405,8 @@ public class ShipmentViewModel extends ViewModel {
                             queryDeliveryRequiredBranchGoodsListResult.setValue(new OperateResult(new OperateInUserView(null)));
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            Message msg = new Message();
-                            msg.obj = WarehouseApp.getInstance().getString(R.string.errorData);
-                            queryDeliveryRequiredBranchGoodsListResult.setValue(new OperateResult(new OperateInUserView(msg)));
+                            queryDeliveryRequiredBranchGoodsListResult.setValue(new OperateResult(new OperateError(-1,
+                                    WarehouseApp.getInstance().getString(R.string.errorData), null)));
                         }
                     }
                     break;
@@ -507,6 +504,39 @@ public class ShipmentViewModel extends ViewModel {
         }
         //删除此统计
         scanStatistics.remove(position);
+        //操作完成
+        queryDeliveryRequiredBranchGoodsListResult.setValue(new OperateResult(new OperateInUserView(null)));
+    }
+
+    /**
+     * 待扫描统计list中的position位置的统计被手动全部设置为已经扫描
+     *
+     * @param position position
+     */
+    void setShipmentStatisticsAllNotScan(int position) {
+        ShipmentGoodsStatistics sItem = scannedStatistics.get(position);
+        //待扫描统计增加此统计数据
+        boolean findInScanned = false;
+        for (ShipmentGoodsStatistics s : scanStatistics) {
+            if (s.supplier.equals(sItem.supplier)) {
+                s.statistic += sItem.statistic;
+                findInScanned = true;
+                break;
+            }
+        }
+        if (!findInScanned) {
+            scanStatistics.add(new ShipmentGoodsStatistics(sItem.supplier, sItem.statistic, true));
+        }
+        //已扫描订单list和已扫描订单减增此订单数据
+        for (int i = scannedBranchOrders.size() - 1; i >= 0; i--) {
+            OrderInformation order = scannedBranchOrders.get(i);
+            if (order.sId.equals(sItem.supplier)) {
+                branchOrders.add(order);        //待扫描增加
+                scannedBranchOrders.remove(i);  //已扫描减少
+            }
+        }
+        //删除此统计
+        scannedStatistics.remove(position);
         //操作完成
         queryDeliveryRequiredBranchGoodsListResult.setValue(new OperateResult(new OperateInUserView(null)));
     }
